@@ -15,6 +15,9 @@
                 Your session is active. From here you can manage your password, access generation features, and keep the account state consistent.
             </p>
             <div class="flex flex-wrap gap-4">
+                <a href="{% url 'community:gallery' %}" class="font-display text-xs border border-white text-white px-5 py-3 hover:bg-white hover:text-black transition-all duration-300">
+                    COMMUNITY
+                </a>
                 <a href="{% url 'accounts:password_change' %}" class="font-display text-xs border border-violet-500 text-violet-500 px-5 py-3 hover:bg-violet-500 hover:text-black transition-all duration-300">
                     CHANGE PASSWORD
                 </a>
@@ -38,6 +41,10 @@
                     <span class="text-white break-all">{{ user.email|default:"Not set" }}</span>
                 </div>
                 <div class="flex justify-between gap-4 border-b border-zinc-800 pb-3">
+                    <span class="uppercase tracking-widest text-zinc-500">Following</span>
+                    <span class="text-white">{{ following_count|default:0 }}</span>
+                </div>
+                <div class="flex justify-between gap-4 border-b border-zinc-800 pb-3">
                     <span class="uppercase tracking-widest text-zinc-500">Staff</span>
                     <span class="text-white">{{ user.is_staff|yesno:"Yes,No" }}</span>
                 </div>
@@ -48,6 +55,40 @@
             </div>
             <div class="border border-zinc-800 bg-zinc-950/70 p-4 text-sm text-zinc-400">
                 Authentication uses Django sessions with CSRF protection and HTTPS-ready cookie settings.
+            </div>
+        </div>
+
+        <div class="border border-zinc-800 bg-zinc-950/90 backdrop-blur-xl p-6 md:p-8 shadow-2xl space-y-6 lg:col-span-2">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <div class="text-xs uppercase tracking-[0.3em] text-zinc-500 mb-2">Following feed</div>
+                    <div class="font-display text-2xl text-white">People you follow</div>
+                </div>
+                <a href="{% url 'community:gallery' %}?feed=following" class="font-display text-xs border border-violet-500 text-violet-500 px-4 py-2 hover:bg-violet-500 hover:text-black transition-all duration-300">OPEN FEED</a>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {% for followed in following_users %}
+                    <div class="border border-zinc-800 bg-zinc-950/70 p-4 rounded-2xl">
+                        <div class="font-display text-lg text-white">{{ followed.get_full_name|default:followed.username }}</div>
+                        <div class="text-sm text-zinc-500">@{{ followed.username }}</div>
+                    </div>
+                {% empty %}
+                    <div class="text-zinc-500 text-sm">You are not following anyone yet.</div>
+                {% endfor %}
+            </div>
+            <div class="grid gap-4">
+                {% for design in recent_followed_designs %}
+                    <div class="border border-zinc-800 bg-zinc-950/70 p-4 rounded-2xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                            <div class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 mb-1">{{ design.get_category_display }}</div>
+                            <div class="font-display text-xl text-white">{{ design.user.get_full_name|default:design.user.username }}</div>
+                            <div class="text-sm text-zinc-500">{{ design.raw_prompt|truncatechars:90 }}</div>
+                        </div>
+                        <a href="{% url 'community:gallery' %}?feed=following" class="font-display text-xs border border-zinc-800 px-4 py-2 text-white hover:border-violet-500 hover:text-violet-400 transition-all duration-300">VIEW</a>
+                    </div>
+                {% empty %}
+                    <div class="text-zinc-500 text-sm">Follow people to see their newest designs here.</div>
+                {% endfor %}
             </div>
         </div>
     </div>

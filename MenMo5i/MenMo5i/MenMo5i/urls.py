@@ -7,6 +7,7 @@ from generation_engine.views import trigger_generation_placeholder
 urlpatterns = [
     path('', landing_page_view, name='landing_page'),
     path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
+    path('community/', include(('community.urls', 'community'), namespace='community')),
     path('api/generate/', trigger_generation_placeholder, name='api_generate'),
     path('admin/', admin.site.urls),
 ]

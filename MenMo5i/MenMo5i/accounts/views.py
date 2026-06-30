@@ -1,9 +1,13 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeDoneView, PasswordChangeView
 from django.shortcuts import redirect, render
+
+from community.models import Follow
+from generation_engine.models import DesignSession
 from django.urls import reverse_lazy
 from django.views import View
 
@@ -50,7 +54,16 @@ class AccountView(LoginRequiredMixin, View):
     template_name = 'accounts/account.html'
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {'user': request.user})
+        User = get_user_model()
+        following_ids = list(Follow.objects.filter(follower=request.user).values_list('following_id', flat=True))
+        following_users = User.objects.filter(id__in=following_ids).order_by('username')
+        recent_followed_designs = DesignSession.objects.filter(user_id__in=following_ids, is_public=True).select_related('user').prefetch_related('artworks').order_by('-created_at')[:6]
+        return render(request, self.template_name, {
+            'user': request.user,
+            'following_users': following_users,
+            'following_count': len(following_ids),
+            'recent_followed_designs': recent_followed_designs,
+        })
 
 
 class SecurePasswordChangeView(LoginRequiredMixin, PasswordChangeView):

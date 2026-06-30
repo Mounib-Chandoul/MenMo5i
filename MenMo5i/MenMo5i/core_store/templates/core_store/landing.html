@@ -17,8 +17,8 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center pt-8 border-t border-zinc-800 gap-6">
                 <p class="text-sm uppercase tracking-wider text-zinc-400 max-w-sm">Browse community shirt concepts or jump into the design studio. This is for prints, not product sales.</p>
                 <div class="flex flex-wrap items-center gap-4">
-                    <a href="#design-section" class="inline-flex items-center justify-center rounded-full border border-white/15 bg-white text-black px-7 py-4 text-sm sm:text-base font-display tracking-[0.22em] min-w-[13rem] hover:bg-transparent hover:text-white transition-all duration-300">
-                        COMMUNITY DESIGNS
+                    <a href="{% url 'community:gallery' %}" class="inline-flex items-center justify-center rounded-full border border-white/15 bg-white text-black px-7 py-4 text-sm sm:text-base font-display tracking-[0.22em] min-w-[13rem] hover:bg-transparent hover:text-white transition-all duration-300">
+                        COMMUNITY GALLERY
                     </a>
                     {% if user.is_authenticated %}
                         <a href="{% url 'accounts:account' %}" class="inline-flex items-center justify-center rounded-full border border-violet-500 bg-violet-500 text-black px-7 py-4 text-sm sm:text-base font-display tracking-[0.22em] min-w-[13rem] hover:bg-white hover:border-white hover:text-black transition-all duration-300">

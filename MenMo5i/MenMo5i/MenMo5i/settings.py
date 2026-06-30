@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
 INSTALLED_APPS = [
     'core_store',
     'accounts',
+    'community',
     'generation_engine',
     'billing',
     'django.contrib.admin',
