@@ -14,20 +14,19 @@
             <h1 class="font-display text-5xl md:text-8xl lg:text-[11rem] leading-[0.85] text-white break-words">
                 CULTURE<br><span class="text-transparent" style="-webkit-text-stroke: 1px #fff;">MUTATED</span>
             </h1>
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center pt-8 border-t border-zinc-800 gap-4">
-                <p class="text-sm uppercase tracking-wider text-zinc-400 max-w-sm">Architectural asymmetry and cultural distortion optimized for the high-noon Maghreb heat.</p>
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="flex items-center gap-3 font-display text-xs tracking-widest text-violet-500 animate-pulse">
-                        <span>SCROLL DOWN TO INGEST</span>
-                        <div class="w-12 h-[1px] bg-violet-500"></div>
-                    </div>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center pt-8 border-t border-zinc-800 gap-6">
+                <p class="text-sm uppercase tracking-wider text-zinc-400 max-w-sm">Browse community shirt concepts or jump into the design studio. This is for prints, not product sales.</p>
+                <div class="flex flex-wrap items-center gap-4">
+                    <a href="#design-section" class="inline-flex items-center justify-center rounded-full border border-white/15 bg-white text-black px-7 py-4 text-sm sm:text-base font-display tracking-[0.22em] min-w-[13rem] hover:bg-transparent hover:text-white transition-all duration-300">
+                        COMMUNITY DESIGNS
+                    </a>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'accounts:account' %}" class="font-display text-xs border border-violet-500 text-violet-500 px-5 py-2 hover:bg-violet-500 hover:text-black transition-all duration-300">
-                            OPEN ACCOUNT
+                        <a href="{% url 'accounts:account' %}" class="inline-flex items-center justify-center rounded-full border border-violet-500 bg-violet-500 text-black px-7 py-4 text-sm sm:text-base font-display tracking-[0.22em] min-w-[13rem] hover:bg-white hover:border-white hover:text-black transition-all duration-300">
+                            DESIGN NOW
                         </a>
                     {% else %}
-                        <a href="{% url 'accounts:signup' %}" class="font-display text-xs border border-violet-500 text-violet-500 px-5 py-2 hover:bg-violet-500 hover:text-black transition-all duration-300">
-                            CREATE ACCOUNT
+                        <a href="{% url 'accounts:login' %}" class="inline-flex items-center justify-center rounded-full border border-violet-500 text-violet-500 px-7 py-4 text-sm sm:text-base font-display tracking-[0.22em] min-w-[13rem] hover:bg-violet-500 hover:text-black transition-all duration-300">
+                            LOGIN TO START
                         </a>
                     {% endif %}
                 </div>
@@ -41,62 +40,62 @@
                 
                 <div class="w-full flex justify-center items-center relative h-[50vh] lg:h-full">
                     <div class="absolute w-[280px] h-[360px] md:w-[400px] md:h-[500px] border border-zinc-800 bg-zinc-900 overflow-hidden shadow-2xl rounded-[2rem] transition-all duration-300">
-                        <img id="scrub-image" src="https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=800&auto=format&fit=crop" 
-                             alt="Cyber Hoodie Variant" 
-                             class="w-full h-full object-cover origin-center transition-all duration-100 ease-out scale-100 filter brightness-100 grayscale-[50%] will-change-transform rounded-[2rem]" />
+                        <img id="scrub-image" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20800%201000%22%3E%0A%20%20%3Crect%20width%3D%22800%22%20height%3D%221000%22%20fill%3D%22%230b0b10%22/%3E%0A%20%20%3Crect%20x%3D%22140%22%20y%3D%2290%22%20width%3D%22520%22%20height%3D%22820%22%20rx%3D%2254%22%20fill%3D%22%23101018%22%20stroke%3D%22%23262635%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Cpath%20d%3D%22M280%20175c60-55%20180-55%20240%200l-55%2070H335z%22%20fill%3D%22%23151522%22/%3E%0A%20%20%3Cpath%20d%3D%22M205%20250l85-85%2036%2050-49%2096z%22%20fill%3D%22%231b1b29%22/%3E%0A%20%20%3Cpath%20d%3D%22M595%20250l-85-85-36%2050%2049%2096z%22%20fill%3D%22%231b1b29%22/%3E%0A%20%20%3Ccircle%20cx%3D%22400%22%20cy%3D%22350%22%20r%3D%22120%22%20fill%3D%22none%22%20stroke%3D%22%238b5cf6%22%20stroke-width%3D%2226%22/%3E%0A%20%20%3Ccircle%20cx%3D%22400%22%20cy%3D%22350%22%20r%3D%2264%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.9%22%20stroke-width%3D%2214%22/%3E%0A%20%20%3Cpath%20d%3D%22M245%20710c55-90%20255-90%20310%200%22%20fill%3D%22none%22%20stroke%3D%22%2322d3ee%22%20stroke-width%3D%2220%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M255%20590h290%22%20stroke%3D%22%232dd4bf%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M280%20630h240%22%20stroke%3D%22%232dd4bf%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.7%22/%3E%0A%20%20%3Ctext%20x%3D%22400%22%20y%3D%22860%22%20text-anchor%3D%22middle%22%20fill%3D%22%239ca3af%22%20font-size%3D%2234%22%20font-family%3D%22Arial%2C%20sans-serif%22%20letter-spacing%3D%228%22%3EPRINT_01%3C/text%3E%0A%3C/svg%3E" 
+                             alt="T-shirt print design preview" 
+                             class="w-full h-full object-cover origin-center transition-all duration-100 ease-out scale-100 will-change-transform rounded-[2rem]" />
                     </div>
                     <div class="absolute font-mono text-[10px] text-zinc-600 bottom-12 left-12 hidden lg:block tracking-widest">
-                        LOC: 36.8065° N, 10.1815° E // SYS_STATUS: ACTIVE
+                        SHIRT PRINT PREVIEW // COMMUNITY ART
                     </div>
                 </div>
 
                 <div class="w-full text-left space-y-12 lg:pl-12 h-[40vh] lg:h-auto flex flex-col justify-center">
                     <div id="scrub-meta-1" class="transition-all duration-500 transform opacity-100 translate-y-0">
-                        <span class="font-mono text-xs text-violet-500 font-bold block mb-2">[ ARCHETYPE_01 / MATRIX PARKA ]</span>
-                        <h2 class="font-display text-4xl lg:text-6xl text-white mb-4">REINFORCED SHELL</h2>
-                        <p class="text-zinc-400 text-sm max-w-md">Equipped with custom high-grade structural nylon weaves resistant to regional weather patterns. Finished with signature metallic geometric hardware tags along the seamlines.</p>
+                        <span class="font-mono text-xs text-violet-500 font-bold block mb-2">[ COMMUNITY PRINT_01 ]</span>
+                        <h2 class="font-display text-4xl lg:text-6xl text-white mb-4">NEON TARGET</h2>
+                        <p class="text-zinc-400 text-sm max-w-md">A bold circular shirt graphic built for high-contrast screen printing and clean streetwear visibility.</p>
                     </div>
                 </div>
             </div>
         </section>
     </div>
 
-    <section id="catalog-section" class="py-32 border-t border-b border-zinc-900 bg-[#0a0a0c]">
+    <section id="design-section" class="py-32 border-t border-b border-zinc-900 bg-[#0a0a0c]">
         <div class="px-6 lg:px-12 max-w-7xl mx-auto mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-            <h2 class="font-display text-4xl lg:text-7xl">DROP_01 // CATALOG</h2>
-            <div class="font-mono text-xs text-zinc-500 tracking-wider">// SWIPE OR SCROLL SIDEWAYS</div>
+            <h2 class="font-display text-4xl lg:text-7xl">COMMUNITY // SHIRT DESIGNS</h2>
+            <div class="font-mono text-xs text-zinc-500 tracking-wider">// BUILT FOR PRINTING, NOT SELLING</div>
         </div>
         
-        <div class="overflow-x-auto flex gap-6 px-6 lg:px-12 pb-8 scroll-smooth snap-x snap-mandatory" style="scrollbar-width: none;">
-            <div class="interactive-card flex-none w-[300px] md:w-[400px] snap-start bg-zinc-950 border border-zinc-900 p-4 group transition-all duration-500 hover:border-violet-500">
-                <div class="w-full h-[400px] bg-zinc-900 overflow-hidden relative mb-4 rounded-[1.5rem]">
-                    <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=800&auto=format&fit=crop" alt="Item" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1 rounded-[1.5rem]" />
+        <div class="grid gap-6 px-6 lg:px-12 lg:grid-cols-3">
+            <div class="interactive-card bg-zinc-950 border border-zinc-900 p-4 group transition-all duration-500 hover:border-violet-500 rounded-[2rem]">
+                <div class="w-full h-[420px] bg-zinc-900 overflow-hidden relative mb-4 rounded-[1.5rem] border border-white/5">
+                    <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20800%201000%22%3E%0A%20%20%3Crect%20width%3D%22800%22%20height%3D%221000%22%20fill%3D%22%230b0b10%22/%3E%0A%20%20%3Crect%20x%3D%22140%22%20y%3D%2290%22%20width%3D%22520%22%20height%3D%22820%22%20rx%3D%2254%22%20fill%3D%22%23101018%22%20stroke%3D%22%23262635%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Cpath%20d%3D%22M280%20175c60-55%20180-55%20240%200l-55%2070H335z%22%20fill%3D%22%23151522%22/%3E%0A%20%20%3Cpath%20d%3D%22M205%20250l85-85%2036%2050-49%2096z%22%20fill%3D%22%231b1b29%22/%3E%0A%20%20%3Cpath%20d%3D%22M595%20250l-85-85-36%2050%2049%2096z%22%20fill%3D%22%231b1b29%22/%3E%0A%20%20%3Ccircle%20cx%3D%22400%22%20cy%3D%22350%22%20r%3D%22120%22%20fill%3D%22none%22%20stroke%3D%22%238b5cf6%22%20stroke-width%3D%2226%22/%3E%0A%20%20%3Ccircle%20cx%3D%22400%22%20cy%3D%22350%22%20r%3D%2264%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.9%22%20stroke-width%3D%2214%22/%3E%0A%20%20%3Cpath%20d%3D%22M245%20710c55-90%20255-90%20310%200%22%20fill%3D%22none%22%20stroke%3D%22%2322d3ee%22%20stroke-width%3D%2220%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M255%20590h290%22%20stroke%3D%22%232dd4bf%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M280%20630h240%22%20stroke%3D%22%232dd4bf%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.7%22/%3E%0A%20%20%3Ctext%20x%3D%22400%22%20y%3D%22860%22%20text-anchor%3D%22middle%22%20fill%3D%22%239ca3af%22%20font-size%3D%2234%22%20font-family%3D%22Arial%2C%20sans-serif%22%20letter-spacing%3D%228%22%3EPRINT_01%3C/text%3E%0A%3C/svg%3E" alt="Community shirt design 1" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.5rem]" />
                 </div>
                 <div class="flex justify-between items-center font-display text-lg">
-                    <span>CHROME SHIELD TEE</span>
-                    <span class="text-violet-500">€75</span>
+                    <span>NEON TARGET</span>
+                    <span class="text-violet-500">PRINT_01</span>
                 </div>
-                <div class="text-xs text-zinc-500 uppercase mt-1">Limited Issue / 50 Units</div>
+                <div class="text-xs text-zinc-500 uppercase mt-1">Bold circle mark / Screen-print ready</div>
             </div>
-            <div class="interactive-card flex-none w-[300px] md:w-[400px] snap-start bg-zinc-950 border border-zinc-900 p-4 group transition-all duration-500 hover:border-violet-500">
-                <div class="w-full h-[400px] bg-zinc-900 overflow-hidden relative mb-4 rounded-[1.5rem]">
-                    <img src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop" alt="Item" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1 rounded-[1.5rem]" />
+            <div class="interactive-card bg-zinc-950 border border-zinc-900 p-4 group transition-all duration-500 hover:border-violet-500 rounded-[2rem]">
+                <div class="w-full h-[420px] bg-zinc-900 overflow-hidden relative mb-4 rounded-[1.5rem] border border-white/5">
+                    <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20800%201000%22%3E%0A%20%20%3Crect%20width%3D%22800%22%20height%3D%221000%22%20fill%3D%22%2309090f%22/%3E%0A%20%20%3Crect%20x%3D%22140%22%20y%3D%2290%22%20width%3D%22520%22%20height%3D%22820%22%20rx%3D%2254%22%20fill%3D%22%2311111a%22%20stroke%3D%22%232a2a3a%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Cpath%20d%3D%22M280%20175c60-55%20180-55%20240%200l-55%2070H335z%22%20fill%3D%22%23151522%22/%3E%0A%20%20%3Cpath%20d%3D%22M205%20250l85-85%2036%2050-49%2096z%22%20fill%3D%22%231a1a27%22/%3E%0A%20%20%3Cpath%20d%3D%22M595%20250l-85-85-36%2050%2049%2096z%22%20fill%3D%22%231a1a27%22/%3E%0A%20%20%3Crect%20x%3D%22270%22%20y%3D%22290%22%20width%3D%22260%22%20height%3D%22260%22%20rx%3D%2242%22%20fill%3D%22none%22%20stroke%3D%22%23f97316%22%20stroke-width%3D%2218%22%20transform%3D%22rotate%2812%20400%20420%29%22/%3E%0A%20%20%3Crect%20x%3D%22300%22%20y%3D%22320%22%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%2234%22%20fill%3D%22none%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%2210%22%20transform%3D%22rotate%2812%20400%20420%29%22/%3E%0A%20%20%3Cpath%20d%3D%22M245%20690h310%22%20stroke%3D%22%23fb7185%22%20stroke-width%3D%2222%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M245%20730h250%22%20stroke%3D%22%23a78bfa%22%20stroke-width%3D%2212%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.7%22/%3E%0A%20%20%3Ctext%20x%3D%22400%22%20y%3D%22860%22%20text-anchor%3D%22middle%22%20fill%3D%22%239ca3af%22%20font-size%3D%2234%22%20font-family%3D%22Arial%2C%20sans-serif%22%20letter-spacing%3D%228%22%3EPRINT_02%3C/text%3E%0A%3C/svg%3E" alt="Community shirt design 2" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.5rem]" />
                 </div>
                 <div class="flex justify-between items-center font-display text-lg">
-                    <span>MUTATED ZIP-HOODIE</span>
-                    <span class="text-violet-500">€140</span>
+                    <span>ORBIT FRAME</span>
+                    <span class="text-violet-500">PRINT_02</span>
                 </div>
-                <div class="text-xs text-zinc-500 uppercase mt-1">Limited Issue / 30 Units</div>
+                <div class="text-xs text-zinc-500 uppercase mt-1">Geometric energy / High contrast</div>
             </div>
-            <div class="interactive-card flex-none w-[300px] md:w-[400px] snap-start bg-zinc-950 border border-zinc-900 p-4 group transition-all duration-500 hover:border-violet-500">
-                <div class="w-full h-[400px] bg-zinc-900 overflow-hidden relative mb-4 rounded-[1.5rem]">
-                    <img src="https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=800&auto=format&fit=crop" alt="Item" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1 rounded-[1.5rem]" />
+            <div class="interactive-card bg-zinc-950 border border-zinc-900 p-4 group transition-all duration-500 hover:border-violet-500 rounded-[2rem]">
+                <div class="w-full h-[420px] bg-zinc-900 overflow-hidden relative mb-4 rounded-[1.5rem] border border-white/5">
+                    <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20800%201000%22%3E%0A%20%20%3Crect%20width%3D%22800%22%20height%3D%221000%22%20fill%3D%22%2307070b%22/%3E%0A%20%20%3Crect%20x%3D%22140%22%20y%3D%2290%22%20width%3D%22520%22%20height%3D%22820%22%20rx%3D%2254%22%20fill%3D%22%23111118%22%20stroke%3D%22%23252535%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Cpath%20d%3D%22M280%20175c60-55%20180-55%20240%200l-55%2070H335z%22%20fill%3D%22%23151520%22/%3E%0A%20%20%3Cpath%20d%3D%22M205%20250l85-85%2036%2050-49%2096z%22%20fill%3D%22%231a1a25%22/%3E%0A%20%20%3Cpath%20d%3D%22M595%20250l-85-85-36%2050%2049%2096z%22%20fill%3D%22%231a1a25%22/%3E%0A%20%20%3Cpath%20d%3D%22M220%20370h360%22%20stroke%3D%22%238b5cf6%22%20stroke-width%3D%2218%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M250%20430h300%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.8%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M245%20500h310%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.8%22/%3E%0A%20%20%3Cpath%20d%3D%22M260%20560h280%22%20stroke%3D%22%2322c55e%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.7%22/%3E%0A%20%20%3Cpath%20d%3D%22M245%20650h310%22%20stroke%3D%22%23f472b6%22%20stroke-width%3D%2222%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Ctext%20x%3D%22400%22%20y%3D%22860%22%20text-anchor%3D%22middle%22%20fill%3D%22%239ca3af%22%20font-size%3D%2234%22%20font-family%3D%22Arial%2C%20sans-serif%22%20letter-spacing%3D%228%22%3EPRINT_03%3C/text%3E%0A%3C/svg%3E" alt="Community shirt design 3" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 rounded-[1.5rem]" />
                 </div>
                 <div class="flex justify-between items-center font-display text-lg">
-                    <span>DENIM CARGO CARAPACE</span>
-                    <span class="text-violet-500">€180</span>
+                    <span>STRIPE WAVE</span>
+                    <span class="text-violet-500">PRINT_03</span>
                 </div>
-                <div class="text-xs text-zinc-500 uppercase mt-1">Limited Issue / 20 Units</div>
+                <div class="text-xs text-zinc-500 uppercase mt-1">Layered lines / Bold streetwear print</div>
             </div>
         </div>
     </section>
@@ -123,26 +122,26 @@
         const scrubImage = document.getElementById('scrub-image');
         
         const assetVariants = [
-            "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=800&auto=format&fit=crop", 
-            "https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=800&auto=format&fit=crop", 
-            "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop"
+            "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20800%201000%22%3E%0A%20%20%3Crect%20width%3D%22800%22%20height%3D%221000%22%20fill%3D%22%230b0b10%22/%3E%0A%20%20%3Crect%20x%3D%22140%22%20y%3D%2290%22%20width%3D%22520%22%20height%3D%22820%22%20rx%3D%2254%22%20fill%3D%22%23101018%22%20stroke%3D%22%23262635%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Cpath%20d%3D%22M280%20175c60-55%20180-55%20240%200l-55%2070H335z%22%20fill%3D%22%23151522%22/%3E%0A%20%20%3Cpath%20d%3D%22M205%20250l85-85%2036%2050-49%2096z%22%20fill%3D%22%231b1b29%22/%3E%0A%20%20%3Cpath%20d%3D%22M595%20250l-85-85-36%2050%2049%2096z%22%20fill%3D%22%231b1b29%22/%3E%0A%20%20%3Ccircle%20cx%3D%22400%22%20cy%3D%22350%22%20r%3D%22120%22%20fill%3D%22none%22%20stroke%3D%22%238b5cf6%22%20stroke-width%3D%2226%22/%3E%0A%20%20%3Ccircle%20cx%3D%22400%22%20cy%3D%22350%22%20r%3D%2264%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.9%22%20stroke-width%3D%2214%22/%3E%0A%20%20%3Cpath%20d%3D%22M245%20710c55-90%20255-90%20310%200%22%20fill%3D%22none%22%20stroke%3D%22%2322d3ee%22%20stroke-width%3D%2220%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M255%20590h290%22%20stroke%3D%22%232dd4bf%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M280%20630h240%22%20stroke%3D%22%232dd4bf%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.7%22/%3E%0A%20%20%3Ctext%20x%3D%22400%22%20y%3D%22860%22%20text-anchor%3D%22middle%22%20fill%3D%22%239ca3af%22%20font-size%3D%2234%22%20font-family%3D%22Arial%2C%20sans-serif%22%20letter-spacing%3D%228%22%3EPRINT_01%3C/text%3E%0A%3C/svg%3E",
+            "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20800%201000%22%3E%0A%20%20%3Crect%20width%3D%22800%22%20height%3D%221000%22%20fill%3D%22%2309090f%22/%3E%0A%20%20%3Crect%20x%3D%22140%22%20y%3D%2290%22%20width%3D%22520%22%20height%3D%22820%22%20rx%3D%2254%22%20fill%3D%22%2311111a%22%20stroke%3D%22%232a2a3a%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Cpath%20d%3D%22M280%20175c60-55%20180-55%20240%200l-55%2070H335z%22%20fill%3D%22%23151522%22/%3E%0A%20%20%3Cpath%20d%3D%22M205%20250l85-85%2036%2050-49%2096z%22%20fill%3D%22%231a1a27%22/%3E%0A%20%20%3Cpath%20d%3D%22M595%20250l-85-85-36%2050%2049%2096z%22%20fill%3D%22%231a1a27%22/%3E%0A%20%20%3Crect%20x%3D%22270%22%20y%3D%22290%22%20width%3D%22260%22%20height%3D%22260%22%20rx%3D%2242%22%20fill%3D%22none%22%20stroke%3D%22%23f97316%22%20stroke-width%3D%2218%22%20transform%3D%22rotate%2812%20400%20420%29%22/%3E%0A%20%20%3Crect%20x%3D%22300%22%20y%3D%22320%22%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%2234%22%20fill%3D%22none%22%20stroke%3D%22%23facc15%22%20stroke-width%3D%2210%22%20transform%3D%22rotate%2812%20400%20420%29%22/%3E%0A%20%20%3Cpath%20d%3D%22M245%20690h310%22%20stroke%3D%22%23fb7185%22%20stroke-width%3D%2222%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M245%20730h250%22%20stroke%3D%22%23a78bfa%22%20stroke-width%3D%2212%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.7%22/%3E%0A%20%20%3Ctext%20x%3D%22400%22%20y%3D%22860%22%20text-anchor%3D%22middle%22%20fill%3D%22%239ca3af%22%20font-size%3D%2234%22%20font-family%3D%22Arial%2C%20sans-serif%22%20letter-spacing%3D%228%22%3EPRINT_02%3C/text%3E%0A%3C/svg%3E",
+            "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20800%201000%22%3E%0A%20%20%3Crect%20width%3D%22800%22%20height%3D%221000%22%20fill%3D%22%2307070b%22/%3E%0A%20%20%3Crect%20x%3D%22140%22%20y%3D%2290%22%20width%3D%22520%22%20height%3D%22820%22%20rx%3D%2254%22%20fill%3D%22%23111118%22%20stroke%3D%22%23252535%22%20stroke-width%3D%224%22/%3E%0A%20%20%3Cpath%20d%3D%22M280%20175c60-55%20180-55%20240%200l-55%2070H335z%22%20fill%3D%22%23151520%22/%3E%0A%20%20%3Cpath%20d%3D%22M205%20250l85-85%2036%2050-49%2096z%22%20fill%3D%22%231a1a25%22/%3E%0A%20%20%3Cpath%20d%3D%22M595%20250l-85-85-36%2050%2049%2096z%22%20fill%3D%22%231a1a25%22/%3E%0A%20%20%3Cpath%20d%3D%22M220%20370h360%22%20stroke%3D%22%238b5cf6%22%20stroke-width%3D%2218%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M250%20430h300%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.8%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M245%20500h310%22%20stroke%3D%22%2338bdf8%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.8%22/%3E%0A%20%20%3Cpath%20d%3D%22M260%20560h280%22%20stroke%3D%22%2322c55e%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.7%22/%3E%0A%20%20%3Cpath%20d%3D%22M245%20650h310%22%20stroke%3D%22%23f472b6%22%20stroke-width%3D%2222%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Ctext%20x%3D%22400%22%20y%3D%22860%22%20text-anchor%3D%22middle%22%20fill%3D%22%239ca3af%22%20font-size%3D%2234%22%20font-family%3D%22Arial%2C%20sans-serif%22%20letter-spacing%3D%228%22%3EPRINT_03%3C/text%3E%0A%3C/svg%3E"
         ];
 
         const metaContent = [
             {
-                tag: "[ ARCHETYPE_01 / MATRIX PARKA ]",
-                title: "REINFORCED SHELL",
-                desc: "Equipped with custom high-grade structural nylon weaves resistant to regional weather patterns. Finished with signature metallic geometric hardware tags along the seamlines."
+                tag: "[ COMMUNITY PRINT_01 ]",
+                title: "NEON TARGET",
+                desc: "Built around a heavy circular mark and clean lines for a loud front-print tee design."
             },
             {
-                tag: "[ ARCHETYPE_02 / KINETIC HOOD ]",
-                title: "WARPING WEAVE",
-                desc: "Asymmetrical drop-shoulders structured with dynamic compression ventilation slots. Crafted out of organic heavy loops French Terry tailored for night missions."
+                tag: "[ COMMUNITY PRINT_02 ]",
+                title: "ORBIT FRAME",
+                desc: "A geometric composition for oversized shirt graphics with strong visual rhythm."
             },
             {
-                tag: "[ ARCHETYPE_03 / SHIELD SUIT ]",
-                title: "MODULAR PANTS",
-                desc: "Featuring decoupled utility tactical pockets that can easily be detached or repositioned along industrial webbing anchor lines. Reinforced multi-panel layout seams."
+                tag: "[ COMMUNITY PRINT_03 ]",
+                title: "STRIPE WAVE",
+                desc: "Layered bars and color accents designed to sit well on both black and white tees."
             }
         ];
 
@@ -213,8 +212,5 @@
 
         observer.observe(document.getElementById('manifesto-section'));
         
-        if (typeof initCursorHovers === "function") {
-            initCursorHovers();
-        }
     </script>
 {% endblock %}
