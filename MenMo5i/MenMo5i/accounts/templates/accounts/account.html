@@ -1,0 +1,55 @@
+{% extends "core_store/base.html" %}
+{% block title %}MenMo5i // Account{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<section class="relative min-h-screen overflow-hidden pt-28 pb-20 px-6 lg:px-12">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.18),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(255,255,255,0.08),_transparent_30%)]"></div>
+    <div class="relative max-w-6xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
+        <div class="space-y-8">
+            <div class="font-mono text-xs text-violet-500 tracking-[0.35em] uppercase">[ ACCOUNT SHELL ]</div>
+            <h1 class="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.9] text-white">
+                WELCOME
+                <span class="text-transparent" style="-webkit-text-stroke: 1px #fff;">{{ user.username|upper }}</span>
+            </h1>
+            <p class="max-w-2xl text-zinc-400 text-base md:text-lg leading-8">
+                Your session is active. From here you can manage your password, access generation features, and keep the account state consistent.
+            </p>
+            <div class="flex flex-wrap gap-4">
+                <a href="{% url 'accounts:password_change' %}" class="font-display text-xs border border-violet-500 text-violet-500 px-5 py-3 hover:bg-violet-500 hover:text-black transition-all duration-300">
+                    CHANGE PASSWORD
+                </a>
+                <form action="{% url 'accounts:logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="font-display text-xs border border-white text-white px-5 py-3 hover:bg-white hover:text-black transition-all duration-300">
+                        LOG OUT
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="border border-zinc-800 bg-zinc-950/90 backdrop-blur-xl p-6 md:p-8 shadow-2xl space-y-6">
+            <div>
+                <div class="text-xs uppercase tracking-[0.3em] text-zinc-500 mb-2">Profile</div>
+                <div class="font-display text-2xl text-white">{{ user.username }}</div>
+            </div>
+            <div class="space-y-3 text-sm text-zinc-400">
+                <div class="flex justify-between gap-4 border-b border-zinc-800 pb-3">
+                    <span class="uppercase tracking-widest text-zinc-500">Email</span>
+                    <span class="text-white break-all">{{ user.email|default:"Not set" }}</span>
+                </div>
+                <div class="flex justify-between gap-4 border-b border-zinc-800 pb-3">
+                    <span class="uppercase tracking-widest text-zinc-500">Staff</span>
+                    <span class="text-white">{{ user.is_staff|yesno:"Yes,No" }}</span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="uppercase tracking-widest text-zinc-500">Active</span>
+                    <span class="text-white">{{ user.is_active|yesno:"Yes,No" }}</span>
+                </div>
+            </div>
+            <div class="border border-zinc-800 bg-zinc-950/70 p-4 text-sm text-zinc-400">
+                Authentication uses Django sessions with CSRF protection and HTTPS-ready cookie settings.
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

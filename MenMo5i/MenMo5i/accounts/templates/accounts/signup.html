@@ -1,0 +1,78 @@
+{% extends "core_store/base.html" %}
+{% block title %}MenMo5i // Sign Up{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<section class="relative min-h-screen overflow-hidden pt-28 pb-20 px-6 lg:px-12">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(139,92,246,0.16),_transparent_32%),radial-gradient(circle_at_bottom_left,_rgba(255,255,255,0.08),_transparent_26%)]"></div>
+    <div class="relative max-w-7xl mx-auto grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-center min-h-[calc(100vh-10rem)]">
+        <div class="order-2 lg:order-1">
+            <div class="relative border border-zinc-800 bg-zinc-950/90 backdrop-blur-xl p-6 md:p-8 shadow-2xl">
+                <div class="mb-8">
+                    <div class="font-display text-2xl text-white">CREATE ACCOUNT</div>
+                    <p class="text-sm text-zinc-500 mt-2">Pick a secure password and keep access in one place.</p>
+                </div>
+                <form method="post" novalidate class="space-y-5">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="border border-rose-500/60 bg-rose-950/70 text-rose-100 px-4 py-3 text-sm">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+                    <div class="space-y-2">
+                        <label class="text-xs uppercase tracking-[0.3em] text-zinc-500" for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}<p class="text-sm text-rose-400">{{ form.username.errors|striptags }}</p>{% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs uppercase tracking-[0.3em] text-zinc-500" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<p class="text-sm text-rose-400">{{ form.email.errors|striptags }}</p>{% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs uppercase tracking-[0.3em] text-zinc-500" for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}<p class="text-sm text-rose-400">{{ form.password1.errors|striptags }}</p>{% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs uppercase tracking-[0.3em] text-zinc-500" for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}<p class="text-sm text-rose-400">{{ form.password2.errors|striptags }}</p>{% endif %}
+                    </div>
+                    <button type="submit" class="w-full font-display text-xs tracking-[0.35em] border border-violet-500 text-violet-500 px-5 py-4 hover:bg-violet-500 hover:text-black transition-all duration-300">
+                        INITIATE ACCESS
+                    </button>
+                </form>
+                <div class="mt-6 flex items-center justify-between text-sm text-zinc-500">
+                    <span>Already have access?</span>
+                    <a href="{% url 'accounts:login' %}" class="text-violet-400 hover:text-violet-300">Sign in</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-1 lg:order-2 space-y-8">
+            <div class="font-mono text-xs text-violet-500 tracking-[0.35em] uppercase">[ NEW MEMBER / ACCESS LAYER ]</div>
+            <h1 class="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.9] text-white">
+                JOIN
+                <span class="text-transparent" style="-webkit-text-stroke: 1px #fff;">THE DROP</span>
+            </h1>
+            <p class="max-w-xl text-zinc-400 text-base md:text-lg leading-8">
+                Create a secure account to manage generation requests, saved assets, and future billing without losing the visual identity of the brand.
+            </p>
+            <div class="grid sm:grid-cols-3 gap-4 max-w-2xl">
+                <div class="border border-zinc-800 bg-zinc-950/70 p-4">
+                    <div class="font-display text-sm text-white mb-2">Unique email</div>
+                    <div class="text-xs text-zinc-500 uppercase tracking-widest">Prevents duplicate identities</div>
+                </div>
+                <div class="border border-zinc-800 bg-zinc-950/70 p-4">
+                    <div class="font-display text-sm text-white mb-2">Validated password</div>
+                    <div class="text-xs text-zinc-500 uppercase tracking-widest">Django strength checks enabled</div>
+                </div>
+                <div class="border border-zinc-800 bg-zinc-950/70 p-4">
+                    <div class="font-display text-sm text-white mb-2">Instant session</div>
+                    <div class="text-xs text-zinc-500 uppercase tracking-widest">Signed in after signup</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

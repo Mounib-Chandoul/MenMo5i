@@ -1,0 +1,5 @@
+MenMo5i/.venv/
+MenMo5i/**/__pycache__/
+MenMo5i/*.sqlite3
+MenMo5i/db.sqlite3
+*.pyc
