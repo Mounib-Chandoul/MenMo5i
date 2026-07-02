@@ -1,30 +1,37 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MenMo5i // Premium North African Streetwear{% endblock %}</title>
+    
+    <!-- Scripts & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
-    
+
     <style>
         :root {
             --violet-neon: #8b5cf6;
             --dark-bg: #0a0a0c;
         }
+
         body {
             background-color: var(--dark-bg);
             color: #ffffff;
             font-family: 'Space Grotesk', sans-serif;
             overflow-x: hidden;
         }
+
         .font-display {
             font-family: 'Archivo Black', sans-serif;
             text-transform: uppercase;
             letter-spacing: -0.05em;
         }
+
+        /* Ambient Grain Overlay */
         .grain-overlay {
             position: fixed;
             top: -50%; left: -50%; right: -50%; bottom: -50%;
@@ -35,84 +42,78 @@
             z-index: 9999;
             animation: grain 8s steps(10) infinite;
         }
+
         @keyframes grain {
-            0%, 100% { transform:translate3d(0, 0, 0); }
-            10% { transform:translate3d(-5%, -10%, 0); }
-            30% { transform:translate3d(-15%, 5%, 0); }
-            50% { transform:translate3d(10%, 10%, 0); }
-            70% { transform:translate3d(5%, -15%, 0); }
-            90% { transform:translate3d(-10%, 5%, 0); }
+            0%, 100% { transform: translate3d(0, 0, 0); }
+            10% { transform: translate3d(-5%, -10%, 0); }
+            30% { transform: translate3d(-15%, 5%, 0); }
+            50% { transform: translate3d(10%, 10%, 0); }
+            70% { transform: translate3d(5%, -15%, 0); }
+            90% { transform: translate3d(-10%, 5%, 0); }
         }
-        .char {
-            display: inline-block;
-            transform: translate3d(0, 100%, 0);
-            opacity: 0;
-            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease;
-        }
-        .reveal-active .char {
-            transform: translate3d(0, 0, 0);
-            opacity: 1;
-        }
-        .pinned-section {
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-        }
+
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #0a0a0c; }
         ::-webkit-scrollbar-thumb { background: #2b2b35; }
         ::-webkit-scrollbar-thumb:hover { background: var(--violet-neon); }
-        {% block extra_css %}{% endblock %}
     </style>
+    {% block extra_css %}{% endblock %}
 </head>
+
 <body class="antialiased select-none {% block body_class %}{% endblock %}">
 
     <div class="grain-overlay"></div>
 
+    <!-- Navigation Bar -->
     <nav class="fixed top-0 left-0 w-full z-50 px-4 sm:px-6 lg:px-8 pt-4">
         <div class="max-w-7xl mx-auto relative overflow-hidden rounded-full border border-white/10 bg-zinc-950/70 backdrop-blur-2xl shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.14),_transparent_30%),radial-gradient(circle_at_right,_rgba(255,255,255,0.06),_transparent_20%)] pointer-events-none"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.14),_transparent_30%)] pointer-events-none"></div>
+            
             <div class="relative px-5 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
+                <!-- Logo -->
                 <a href="/" class="group flex flex-col leading-none">
                     <span class="font-display text-lg sm:text-xl tracking-tighter text-white group-hover:text-violet-500 transition-colors duration-300">MENMO5I //</span>
                     <span class="mt-1 font-mono text-[10px] sm:text-[11px] tracking-[0.35em] uppercase text-zinc-500">DROP_01 / TUNIS</span>
                 </a>
 
+                <!-- Meta Badges (Desktop) -->
                 <div class="hidden lg:flex items-center gap-3 text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500">
                     <span class="rounded-full border border-zinc-800 bg-zinc-950/60 px-4 py-2 text-violet-400">Private drop</span>
                     <span class="rounded-full border border-zinc-800 bg-zinc-950/60 px-4 py-2">Secure session</span>
-                    <span class="rounded-full border border-zinc-800 bg-zinc-950/60 px-4 py-2">North Africa / Global</span>
                 </div>
 
+                <!-- Nav Actions -->
                 <div class="flex items-center gap-2 sm:gap-3">
                     {% block nav_actions %}
-                        {% if user.is_authenticated %}
-                            <a href="{% url 'accounts:account' %}" class="inline-flex items-center justify-center rounded-full border border-white/15 bg-white px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-black transition-transform duration-300 hover:-translate-y-0.5">
-                                {{ user.get_full_name|default:user.username }}
-                            </a>
-                            <a href="{% url 'community:gallery' %}" class="hidden md:inline-flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/60 px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-white transition-all duration-300 hover:border-violet-500 hover:text-violet-400">
-                                COMMUNITY
-                            </a>
-                            <form action="{% url 'accounts:logout' %}" method="post" class="inline-flex">
-                                {% csrf_token %}
-                                <button type="submit" class="inline-flex items-center justify-center rounded-full border border-violet-500/50 bg-zinc-950/40 px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-violet-400 transition-all duration-300 hover:bg-violet-500 hover:text-black">
-                                    LOGOUT
-                                </button>
-                            </form>
-                        {% else %}
-                            <a href="{% url 'accounts:login' %}" class="inline-flex items-center justify-center rounded-full border border-white/10 bg-zinc-950/40 px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-white transition-all duration-300 hover:border-white hover:bg-white hover:text-black">
-                                SIGN IN
-                            </a>
-                            <a href="{% url 'accounts:signup' %}" class="inline-flex items-center justify-center rounded-full border border-violet-500 bg-violet-500 px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(139,92,246,0.3)]">
-                                JOIN
-                            </a>
-                        {% endif %}
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'account' %}" class="inline-flex items-center justify-center rounded-full border border-white/15 bg-white px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-black transition-transform duration-300 hover:-translate-y-0.5">
+                            {{ user.get_full_name|default:user.username }}
+                        </a>
+                        <a href="{% url 'community:gallery' %}" class="hidden md:inline-flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/60 px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-white transition-all duration-300 hover:border-violet-500 hover:text-violet-400">
+                            COMMUNITY
+                        </a>
+                        <a href="{% url 'cart' %}" class="inline-flex items-center justify-center rounded-full border border-violet-500/50 bg-zinc-950/40 px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-violet-400 transition-all duration-300 hover:bg-violet-500 hover:text-black">
+                            CART
+                        </a>
+                        <form action="{% url 'logout' %}" method="post" class="inline-flex">
+                            {% csrf_token %}
+                            <button type="submit" class="inline-flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/40 px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-zinc-400 transition-all duration-300 hover:bg-zinc-800 hover:text-white">
+                                LOGOUT
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="inline-flex items-center justify-center rounded-full border border-white/10 bg-zinc-950/40 px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-white transition-all duration-300 hover:border-white hover:bg-white hover:text-black">
+                            SIGN IN
+                        </a>
+                        <a href="{% url 'signup' %}" class="inline-flex items-center justify-center rounded-full border border-violet-500 bg-violet-500 px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(139,92,246,0.3)]">
+                            JOIN
+                        </a>
+                    {% endif %}
                     {% endblock %}
 
-                    <button id="mobile-menu-toggle" class="lg:hidden inline-flex flex-col justify-center items-end gap-1.5 rounded-full border border-white/10 bg-zinc-950/50 px-3 py-3 focus:outline-none" aria-label="Open quick actions menu" aria-expanded="false">
+                    <!-- Mobile Menu Hamburger -->
+                    <button id="mobile-menu-toggle" class="lg:hidden inline-flex flex-col justify-center items-end gap-1.5 rounded-full border border-white/10 bg-zinc-950/50 px-3 py-3 focus:outline-none" aria-label="Open menu" aria-expanded="false">
                         <span class="w-5 h-[1px] bg-white transition-transform duration-300" id="nav-line-1"></span>
                         <span class="w-3.5 h-[1px] bg-white transition-transform duration-300" id="nav-line-2"></span>
                     </button>
@@ -121,6 +122,7 @@
         </div>
     </nav>
 
+    <!-- Mobile Drawer Navigation -->
     <div id="mobile-menu-drawer" class="fixed inset-0 bg-zinc-950/96 z-40 transform translate-x-full transition-transform duration-500 ease-out flex flex-col justify-end px-4 py-4 lg:hidden">
         <div class="max-w-2xl w-full mx-auto rounded-[2rem] border border-white/10 bg-zinc-950/90 backdrop-blur-2xl p-6 shadow-2xl">
             <div class="flex items-center justify-between mb-8">
@@ -128,65 +130,59 @@
                     <div class="font-display text-2xl text-white">QUICK ACTIONS</div>
                     <div class="font-mono text-[10px] text-zinc-500 tracking-[0.35em] uppercase mt-1">Access layer</div>
                 </div>
-                <div class="font-mono text-[10px] text-violet-400 tracking-[0.35em] uppercase">v0.1</div>
             </div>
             <div class="grid gap-3">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'accounts:account' %}" class="mobile-nav-link rounded-2xl border border-white/10 bg-white px-5 py-4 text-black font-display tracking-[0.25em]">{{ user.get_full_name|default:user.username }}</a>
+                    <a href="{% url 'account' %}" class="mobile-nav-link rounded-2xl border border-white/10 bg-white px-5 py-4 text-black font-display tracking-[0.25em]">{{ user.get_full_name|default:user.username }}</a>
                     <a href="{% url 'community:gallery' %}" class="mobile-nav-link rounded-2xl border border-zinc-800 bg-zinc-950/70 px-5 py-4 text-white font-display tracking-[0.25em]">COMMUNITY</a>
-                    <form action="{% url 'accounts:logout' %}" method="post">
+                    <a href="{% url 'cart' %}" class="mobile-nav-link rounded-2xl border border-violet-500/30 bg-zinc-950/70 px-5 py-4 text-violet-400 font-display tracking-[0.25em]">CART</a>
+                    <form action="{% url 'logout' %}" method="post">
                         {% csrf_token %}
-                        <button type="submit" class="mobile-nav-link w-full rounded-2xl border border-violet-500/40 bg-zinc-950/70 px-5 py-4 text-left text-violet-400 font-display tracking-[0.25em]">LOG OUT</button>
+                        <button type="submit" class="mobile-nav-link w-full rounded-2xl border border-zinc-800 bg-zinc-950/70 px-5 py-4 text-left text-zinc-500 font-display tracking-[0.25em]">LOG OUT</button>
                     </form>
                 {% else %}
-                    <a href="{% url 'accounts:login' %}" class="mobile-nav-link rounded-2xl border border-white/10 bg-zinc-950/70 px-5 py-4 text-white font-display tracking-[0.25em]">SIGN IN</a>
-                    <a href="{% url 'accounts:signup' %}" class="mobile-nav-link rounded-2xl border border-violet-500 bg-violet-500 px-5 py-4 text-black font-display tracking-[0.25em]">JOIN</a>
+                    <a href="{% url 'login' %}" class="mobile-nav-link rounded-2xl border border-white/10 bg-zinc-950/70 px-5 py-4 text-white font-display tracking-[0.25em]">SIGN IN</a>
+                    <a href="{% url 'signup' %}" class="mobile-nav-link rounded-2xl border border-violet-500 bg-violet-500 px-5 py-4 text-black font-display tracking-[0.25em]">JOIN</a>
                 {% endif %}
-            </div>
-            <div class="mt-6 grid grid-cols-3 gap-3 text-[10px] font-mono tracking-[0.28em] uppercase text-zinc-500">
-                <div class="rounded-2xl border border-zinc-800 bg-zinc-950/60 px-3 py-3 text-center">Private</div>
-                <div class="rounded-2xl border border-zinc-800 bg-zinc-950/60 px-3 py-3 text-center">Secure</div>
-                <div class="rounded-2xl border border-zinc-800 bg-zinc-950/60 px-3 py-3 text-center">Fast</div>
             </div>
         </div>
     </div>
 
-<main>
+    <!-- Main Content Area -->
+    <main class="pt-24 min-h-screen">
         {% if messages %}
-            <div class="fixed top-24 right-4 z-[60] w-[min(90vw,24rem)] space-y-3">
-                {% for message in messages %}
-                    <div class="border px-4 py-3 text-sm backdrop-blur-md shadow-2xl {% if 'success' in message.tags %}border-violet-500/60 bg-zinc-950/90 text-white{% elif 'error' in message.tags %}border-rose-500/60 bg-rose-950/90 text-rose-50{% else %}border-zinc-800 bg-zinc-950/90 text-zinc-100{% endif %}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
+        <div class="fixed top-24 right-4 z-[60] w-[min(90vw,24rem)] space-y-3">
+            {% for message in messages %}
+            <div class="border px-4 py-3 text-sm backdrop-blur-md shadow-2xl {% if 'success' in message.tags %}border-violet-500/60 bg-zinc-950/90 text-white{% elif 'error' in message.tags %}border-rose-500/60 bg-rose-950/90 text-rose-50{% else %}border-zinc-800 bg-zinc-950/90 text-zinc-100{% endif %}">
+                {{ message }}
             </div>
+            {% endfor %}
+        </div>
         {% endif %}
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Footer Component -->
     {% block footer %}
-    <footer class="bg-zinc-950 border-t border-zinc-900 px-6 lg:px-12 py-24 relative overflow-hidden">
-        <div class="max-w-7xl mx-auto w-full flex flex-col items-center justify-center text-center py-12 border-b border-zinc-900">
-            <a href="#" class="group relative block w-full py-6">
-                <h2 class="font-display text-4xl md:text-7xl lg:text-[9rem] tracking-tighter text-white group-hover:text-violet-500 transition-colors duration-500 ease-out break-words">
-                    ENTER_THE_SYSTEM
-                </h2>
-                <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-violet-500 group-hover:w-full transition-all duration-700 ease-out"></div>
-            </a>
-            <p class="font-mono text-xs text-zinc-600 mt-8 tracking-widest uppercase">Secured payments globally. Priority regional shipping network active.</p>
+    <footer class="bg-zinc-950 border-t border-zinc-900 px-6 lg:px-12 py-16 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto w-full flex flex-col items-center justify-center text-center py-6 border-b border-zinc-900">
+            <h2 class="font-display text-4xl md:text-6xl lg:text-[7rem] tracking-tighter text-white break-words select-none">
+                MENMO5I SYNDICATE
+            </h2>
+            <p class="font-mono text-[10px] text-zinc-600 mt-4 tracking-widest uppercase">Secured payments globally. Priority regional shipping network active.</p>
         </div>
 
-        <div class="max-w-7xl mx-auto w-full pt-12 flex flex-col md:flex-row justify-between items-center text-xs text-zinc-500 font-mono gap-6">
-            <div>© 2026 MENMO5I SYNDICATE. ALL TECH RIGHTS PRESERVED.</div>
-            <div class="flex gap-8">
+        <div class="max-w-7xl mx-auto w-full pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] font-mono text-zinc-500 gap-4">
+            <div>© 2026 MENMO5I. ALL RIGHTS RESERVED.</div>
+            <div class="flex gap-6">
                 <a href="#" class="hover:text-violet-500 transition-colors">INSTAGRAM</a>
                 <a href="#" class="hover:text-violet-500 transition-colors">TWITTER</a>
-                <a href="#" class="hover:text-violet-500 transition-colors">DISCORD_SERVER</a>
             </div>
         </div>
     </footer>
     {% endblock %}
 
+    <!-- Mobile Drawer Toggle Script -->
     <script>
         const toggleBtn = document.getElementById('mobile-menu-toggle');
         const drawer = document.getElementById('mobile-menu-drawer');
@@ -214,23 +210,12 @@
             }
         }
 
-        function toggleMenu() {
-            setMenuState(!drawer.classList.contains('translate-x-0'));
-        }
-
-        toggleBtn.addEventListener('click', toggleMenu);
+        toggleBtn.addEventListener('click', () => setMenuState(!drawer.classList.contains('translate-x-0')));
         mobileLinks.forEach(link => link.addEventListener('click', () => setMenuState(false)));
-        drawer.addEventListener('click', (event) => {
-            if (event.target === drawer) {
-                setMenuState(false);
-            }
-        });
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                setMenuState(false);
-            }
-        });
+        drawer.addEventListener('click', (e) => e.target === drawer && setMenuState(false));
+        document.addEventListener('keydown', (e) => e.key === 'Escape' && setMenuState(false));
     </script>
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>

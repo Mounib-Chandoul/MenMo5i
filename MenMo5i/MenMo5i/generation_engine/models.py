@@ -29,3 +29,21 @@ class GeneratedArt(models.Model):
 
     def __str__(self):
         return f"Art for {self.session_id}"
+
+
+from django.db import models
+
+class ShirtTemplate(models.Model):
+    name = models.CharField(max_length=100) # e.g., "Oversized Boxy Black Tee"
+    blank_image = models.ImageField(upload_to="templates/blanks/") # Real shirt image
+    mask_image = models.ImageField(upload_to="templates/masks/")   # Binary background mask
+    
+    # Printable box area defined as percentages (0.0 to 1.0) of the total image size
+    # This allows your images to be any resolution (1080p, 4k, etc.)
+    canvas_x = models.FloatField(help_text="X coordinate center-left position (0.0 - 1.0)")
+    canvas_y = models.FloatField(help_text="Y coordinate top position (0.0 - 1.0)")
+    canvas_width = models.FloatField(help_text="Width of printable chest area (0.0 - 1.0)")
+    canvas_height = models.FloatField(help_text="Height of printable chest area (0.0 - 1.0)")
+
+    def __str__(self):
+        return self.name

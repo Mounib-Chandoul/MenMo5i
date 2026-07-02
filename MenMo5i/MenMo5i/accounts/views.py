@@ -34,7 +34,7 @@ class SignupView(View):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('accounts:account')
+            return redirect('account')
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -46,7 +46,7 @@ class SignupView(View):
             user = form.save()
             login(request, user, backend=settings.AUTHENTICATION_BACKENDS[1])
             messages.success(request, 'Account created successfully.')
-            return redirect('accounts:account')
+            return redirect('account')
         return render(request, self.template_name, {'form': form})
 
 
@@ -69,8 +69,16 @@ class AccountView(LoginRequiredMixin, View):
 class SecurePasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     template_name = 'accounts/password_change_form.html'
     form_class = SecurePasswordChangeForm
-    success_url = reverse_lazy('accounts:password_change_done')
+    success_url = reverse_lazy('password_change_done')
 
 
 class SecurePasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
     template_name = 'accounts/password_change_done.html'
+
+class CartView(LoginRequiredMixin, View):
+    template_name = 'accounts/cart.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, {'cart': []})
+    
+
