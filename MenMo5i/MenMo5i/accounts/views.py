@@ -79,6 +79,14 @@ class CartView(LoginRequiredMixin, View):
     template_name = 'accounts/cart.html'
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {'cart': []})
+        from core_store.models import CartItem
+        cart_items = CartItem.objects.filter(
+            user=request.user
+        ).select_related('art__session__user').order_by('-added_at')
+        total = sum(item.total_price for item in cart_items)
+        return render(request, self.template_name, {
+            'cart': cart_items,
+            'cart_total': total,
+        })
     
 

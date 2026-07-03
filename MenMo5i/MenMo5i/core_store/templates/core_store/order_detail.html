@@ -1,0 +1,110 @@
+{% extends "core_store/base.html" %}
+{% block title %}MenMo5i // Order #{{ order.pk }}{% endblock %}
+
+{% block content %}
+<section class="relative w-full min-h-screen px-4 sm:px-6 lg:px-8 pt-32 pb-24 z-10 max-w-7xl mx-auto">
+    <div class="mb-12 border-b border-zinc-900 pb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+        <div>
+            <div class="text-xs tracking-[0.3em] text-violet-500 font-bold uppercase mb-2">// ORDER / DETAIL_VIEW</div>
+            <h1 class="font-display text-4xl md:text-7xl text-white">ORDER #{{ order.pk }}</h1>
+        </div>
+        <a href="{% url 'order_history' %}"
+           class="inline-flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/60 px-5 py-2.5 text-[11px] font-display tracking-[0.28em] text-zinc-400 transition-all duration-300 hover:border-violet-500 hover:text-violet-400">
+            ALL ORDERS
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+        <div class="lg:col-span-3 space-y-6">
+            {% for item in order.items.all %}
+            <div class="rounded-[2rem] border border-white/10 bg-zinc-950/40 backdrop-blur-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-violet-500/40 group">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.04),_transparent_40%)] pointer-events-none"></div>
+                <div class="relative z-10 flex items-center gap-5">
+                    <a href="{% url 'design_detail' item.art.session_id %}"
+                       class="w-20 h-24 rounded-xl border border-zinc-800 bg-zinc-900 overflow-hidden flex-shrink-0">
+                        {% if item.art.image_url %}
+                        <img src="{{ item.art.image_url }}" alt="" class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center font-mono text-[10px] text-zinc-600">PRINT</div>
+                        {% endif %}
+                    </a>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-display text-white group-hover:text-violet-400 transition-colors truncate">{{ item.art.session.raw_prompt|truncatechars:45 }}</p>
+                        <p class="text-zinc-500 font-mono text-xs mt-1">@{{ item.art.session.user.username }}</p>
+                        <div class="flex items-center gap-4 mt-2">
+                            <span class="text-zinc-400 font-mono text-xs">QTY: {{ item.quantity }}</span>
+                            <span class="text-zinc-400 font-mono text-xs">{{ item.price }} TND each</span>
+                        </div>
+                    </div>
+                    <span class="text-white font-display text-lg whitespace-nowrap">{% widthratio item.price 1 item.quantity %} TND</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="lg:col-span-2 lg:sticky lg:top-32 space-y-6">
+            <div class="rounded-[2rem] border border-white/10 bg-zinc-950/70 backdrop-blur-2xl p-6 relative overflow-hidden">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_rgba(139,92,246,0.08),_transparent_40%)] pointer-events-none"></div>
+                <div class="relative z-10 space-y-5">
+                    <div class="font-mono text-xs text-violet-400 tracking-[0.25em] uppercase pb-4 border-b border-zinc-900 flex justify-between">
+                        <span>ORDER_METADATA</span>
+                        <span>#{{ order.pk }}</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1">Status</div>
+                            <span class="rounded-full border px-3 py-1.5 text-xs font-mono tracking-wider uppercase inline-block
+                                {% if order.status == 'pending' %}border-amber-800 bg-amber-950/40 text-amber-400
+                                {% elif order.status == 'confirmed' %}border-blue-800 bg-blue-950/40 text-blue-400
+                                {% elif order.status == 'shipped' %}border-violet-800 bg-violet-950/40 text-violet-400
+                                {% elif order.status == 'delivered' %}border-emerald-800 bg-emerald-950/40 text-emerald-400
+                                {% elif order.status == 'cancelled' %}border-rose-800 bg-rose-950/40 text-rose-400
+                                {% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </div>
+
+                        <div>
+                            <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1">Date Placed</div>
+                            <span class="text-zinc-300 text-sm">{{ order.created_at|date:"M d, Y H:i" }}</span>
+                        </div>
+
+                        <div>
+                            <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1">Payment</div>
+                            <span class="text-zinc-300 text-sm">{{ order.get_payment_method_display }}</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-zinc-900">
+                        <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-2">Shipping To</div>
+                        <p class="text-white text-sm">{{ order.shipping_name }}</p>
+                        <p class="text-zinc-400 text-sm">{{ order.shipping_address }}</p>
+                        <p class="text-zinc-400 text-sm">{{ order.shipping_city }}</p>
+                        <p class="text-zinc-400 text-sm">{{ order.shipping_phone }}</p>
+                        {% if order.notes %}
+                        <div class="mt-3 pt-3 border-t border-zinc-900">
+                            <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1">Notes</div>
+                            <p class="text-zinc-400 text-sm">{{ order.notes }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="pt-4 border-t border-zinc-900 space-y-2">
+                        {% for item in order.items.all %}
+                        <div class="flex justify-between text-sm">
+                            <span class="text-zinc-300 truncate mr-4">{{ item.art.session.raw_prompt|truncatechars:30 }} x{{ item.quantity }}</span>
+                            <span class="text-white font-mono whitespace-nowrap">{% widthratio item.price 1 item.quantity %} TND</span>
+                        </div>
+                        {% endfor %}
+                        <div class="pt-2 border-t border-zinc-900 flex justify-between text-lg font-display text-white">
+                            <span>TOTAL</span>
+                            <span>{{ order.total }} TND</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

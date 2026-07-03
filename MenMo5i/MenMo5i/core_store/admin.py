@@ -1,3 +1,29 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import CartItem, Order, OrderItem
+
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+    readonly_fields = ['art', 'quantity', 'price']
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'user', 'status', 'total', 'payment_method', 'created_at']
+    list_filter = ['status', 'payment_method', 'created_at']
+    search_fields = ['user__username', 'shipping_name', 'shipping_phone']
+    inlines = [OrderItemInline]
+    readonly_fields = ['user', 'total', 'created_at', 'updated_at']
+
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ['user', 'art', 'quantity', 'added_at']
+    list_filter = ['added_at']
+
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ['order', 'art', 'quantity', 'price']

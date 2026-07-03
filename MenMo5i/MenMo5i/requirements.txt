@@ -3,3 +3,4 @@ python-dotenv>=1.0
 Pillow>=10.0
 replicate>=1.0
 celery>=5.3
+rembg>=2.0

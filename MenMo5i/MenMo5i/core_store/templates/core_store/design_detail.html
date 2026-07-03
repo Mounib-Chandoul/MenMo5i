@@ -1,0 +1,121 @@
+{% extends "core_store/base.html" %}
+{% block title %}MenMo5i // {{ session.user.username }} / {{ session.get_category_display }}{% endblock %}
+
+{% block content %}
+<section class="relative w-full min-h-screen px-4 sm:px-6 lg:px-8 pt-32 pb-24 z-10 max-w-7xl mx-auto">
+    <div class="mb-12 border-b border-zinc-900 pb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+        <div>
+            <div class="text-xs tracking-[0.3em] text-violet-500 font-bold uppercase mb-2">// DESIGN_SESSION / DETAIL_VIEW</div>
+            <h1 class="font-display text-4xl md:text-7xl text-white">{{ session.get_category_display }}</h1>
+        </div>
+        <a href="{% url 'community:gallery' %}"
+           class="inline-flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/60 px-5 py-2.5 text-[11px] font-display tracking-[0.28em] text-zinc-400 transition-all duration-300 hover:border-violet-500 hover:text-violet-400">
+            BACK TO GALLERY
+        </a>
+    </div>
+
+    {% with art=session.artworks.first %}
+    {% if art %}
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+        <div class="lg:col-span-3 relative overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/40 backdrop-blur-2xl p-4 group">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.06),_transparent_40%)] pointer-events-none"></div>
+            <div class="relative aspect-[4/5] bg-zinc-900 overflow-hidden rounded-[1.5rem] border border-white/5 cursor-grab active:cursor-grabbing">
+                <canvas data-3d-viewer="{{ art.image_url }}" class="w-full h-full block"></canvas>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+            <div class="rounded-[2rem] border border-white/10 bg-zinc-950/70 backdrop-blur-2xl p-6 relative overflow-hidden">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_rgba(139,92,246,0.08),_transparent_40%)] pointer-events-none"></div>
+                <div class="relative z-10 space-y-5">
+                    <div class="font-mono text-xs text-violet-400 tracking-[0.25em] uppercase pb-4 border-b border-zinc-900 flex justify-between">
+                        <span>DESIGN_METADATA</span>
+                        <span>v0.1</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1">Designer</div>
+                            <div class="font-display text-2xl text-white">{{ session.user.get_full_name|default:session.user.username }}</div>
+                            <div class="text-sm text-zinc-500">@{{ session.user.username }}</div>
+                        </div>
+
+                        <div>
+                            <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1">Prompt</div>
+                            <p class="text-zinc-300 text-sm leading-7">{{ session.raw_prompt }}</p>
+                        </div>
+
+                        <div>
+                            <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1">Category</div>
+                            <span class="rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1.5 text-xs font-mono tracking-[0.25em] uppercase text-violet-400">
+                                {{ session.get_category_display }}
+                            </span>
+                        </div>
+
+                        <div>
+                            <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1">Created</div>
+                            <span class="text-zinc-400 text-sm">{{ session.created_at|date:"M d, Y" }}</span>
+                        </div>
+
+                        <div>
+                            <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1">Status</div>
+                            <span class="rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1.5 text-xs font-mono tracking-[0.25em] uppercase text-zinc-400">
+                                {{ session.status }}
+                            </span>
+                        </div>
+
+                        {% if session.is_public %}
+                        <div>
+                            <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1">Visibility</div>
+                            <span class="rounded-full border border-emerald-800 bg-emerald-950/40 px-3 py-1.5 text-xs font-mono tracking-[0.25em] uppercase text-emerald-400">
+                                Public
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if user.is_authenticated %}
+                    <form action="{% url 'cart_add' art.id %}" method="post" class="pt-4 border-t border-zinc-900">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit"
+                                class="w-full inline-flex items-center justify-center rounded-full border border-violet-500 bg-violet-500 text-black py-4 text-sm font-display tracking-[0.25em] hover:bg-white hover:border-white hover:text-black transition-all duration-300 shadow-[0_10px_30px_rgba(139,92,246,0.15)]">
+                            ADD TO CART — {{ art.price }} TND
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="pt-4 border-t border-zinc-900">
+                        <a href="{% url 'login' %}?next={{ request.path }}"
+                           class="w-full inline-flex items-center justify-center rounded-full border border-zinc-700 bg-zinc-950/60 text-zinc-400 py-4 text-sm font-display tracking-[0.25em] hover:border-violet-500 hover:text-violet-400 transition-all duration-300">
+                            SIGN IN TO PURCHASE
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div class="pt-4 border-t border-zinc-900 space-y-3">
+                        <div class="font-mono text-[10px] text-zinc-500 tracking-[0.25em] uppercase">EXPORT // PRINT_READY</div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <a href="{% url 'export_design' session.id %}"
+                               class="flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/60 px-4 py-3 text-[11px] font-display tracking-[0.22em] text-white hover:border-violet-500 hover:text-violet-400 transition-all duration-300">
+                                DESIGN PNG
+                            </a>
+                            <a href="{% url 'export_shirt' session.id %}"
+                               class="flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/60 px-4 py-3 text-[11px] font-display tracking-[0.22em] text-white hover:border-violet-500 hover:text-violet-400 transition-all duration-300">
+                                SHIRT PNG
+                            </a>
+                        </div>
+                        <div class="font-mono text-[9px] text-zinc-600 tracking-wider text-center">300 DPI // 3600 × 4500 px</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="rounded-[2rem] border border-zinc-900 bg-zinc-950/20 px-6 py-20 text-center space-y-4">
+        <div class="font-mono text-xs text-zinc-600 uppercase tracking-[0.35em]">SYSTEM_STATUS // NO_ARTWORK</div>
+        <p class="text-zinc-400 max-w-sm mx-auto text-sm">This design session has no generated artwork yet.</p>
+    </div>
+    {% endif %}
+    {% endwith %}
+</section>
+{% endblock %}

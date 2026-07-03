@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
@@ -13,9 +14,8 @@ urlpatterns = [
     path('api/generate/', trigger_generation_placeholder, name='api_generate'),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
+    path('', include('core_store.urls')),
 ]
 
-# Legacy entry point kept in sync with MenMo5i/urls.py
 if settings.DEBUG:
-    from django.conf.urls.static import static
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

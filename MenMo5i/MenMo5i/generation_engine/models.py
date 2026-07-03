@@ -25,7 +25,15 @@ class DesignSession(models.Model):
 
 class GeneratedArt(models.Model):
     session = models.ForeignKey(DesignSession, on_delete=models.CASCADE, related_name='artworks')
-    transparent_png_url = models.URLField(max_length=1000)
+    transparent_png_url = models.URLField(max_length=1000, blank=True, default='')
+    design_image = models.ImageField(upload_to='designs/', null=True, blank=True)
+    price = models.DecimalField(max_digits=8, decimal_places=2, default=29.99)
+
+    @property
+    def image_url(self):
+        if self.design_image:
+            return self.design_image.url
+        return self.transparent_png_url
 
     def __str__(self):
         return f"Art for {self.session_id}"

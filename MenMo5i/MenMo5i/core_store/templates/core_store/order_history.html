@@ -1,0 +1,64 @@
+{% extends "core_store/base.html" %}
+{% block title %}MenMo5i // Order History{% endblock %}
+
+{% block content %}
+<section class="relative w-full min-h-screen px-4 sm:px-6 lg:px-8 pt-32 pb-24 z-10 max-w-7xl mx-auto">
+    <div class="mb-12 border-b border-zinc-900 pb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+        <div>
+            <div class="text-xs tracking-[0.3em] text-violet-500 font-bold uppercase mb-2">// ACCESS LAYER / ORDER_HISTORY</div>
+            <h1 class="font-display text-4xl md:text-7xl text-white">ORDERS</h1>
+        </div>
+        <a href="{% url 'community:gallery' %}"
+           class="inline-flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/60 px-5 py-2.5 text-[11px] font-display tracking-[0.28em] text-zinc-400 transition-all duration-300 hover:border-violet-500 hover:text-violet-400">
+            BROWSE GALLERY
+        </a>
+    </div>
+
+    {% if orders %}
+    <div class="space-y-4">
+        {% for order in orders %}
+        <a href="{% url 'order_detail' order.pk %}"
+           class="block rounded-[2rem] border border-white/10 bg-zinc-950/40 backdrop-blur-2xl p-5 transition-all duration-300 hover:border-violet-500/40 group relative overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.04),_transparent_40%)] pointer-events-none"></div>
+            <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-5">
+                    <div class="w-14 h-14 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                        <span class="font-display text-lg text-violet-400">#{{ order.pk }}</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-display text-lg text-white group-hover:text-violet-400 transition-colors">ORDER #{{ order.pk }}</span>
+                            <span class="rounded-full border px-3 py-0.5 text-[10px] font-mono tracking-wider uppercase
+                                {% if order.status == 'pending' %}border-amber-800 bg-amber-950/40 text-amber-400
+                                {% elif order.status == 'confirmed' %}border-blue-800 bg-blue-950/40 text-blue-400
+                                {% elif order.status == 'shipped' %}border-violet-800 bg-violet-950/40 text-violet-400
+                                {% elif order.status == 'delivered' %}border-emerald-800 bg-emerald-950/40 text-emerald-400
+                                {% elif order.status == 'cancelled' %}border-rose-800 bg-rose-950/40 text-rose-400
+                                {% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </div>
+                        <p class="text-zinc-500 font-mono text-xs mt-1">{{ order.created_at|date:"M d, Y H:i" }} — {{ order.items.count }} item(s)</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-lg font-display text-white">{{ order.total }} TND</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="rounded-[2rem] border border-zinc-900 bg-zinc-950/20 px-6 py-20 text-center space-y-4">
+        <div class="font-mono text-xs text-zinc-600 uppercase tracking-[0.35em]">SYSTEM_STATUS // NO_ORDERS</div>
+        <p class="text-zinc-400 max-w-sm mx-auto text-sm">You haven't placed any orders yet.</p>
+        <div class="pt-4">
+            <a href="{% url 'community:gallery' %}"
+               class="inline-flex items-center justify-center rounded-full border border-white/10 bg-zinc-950/40 px-6 py-3 text-xs font-display tracking-[0.22em] text-white transition-all duration-300 hover:border-violet-500 hover:text-violet-400">
+                BROWSE GALLERY
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
