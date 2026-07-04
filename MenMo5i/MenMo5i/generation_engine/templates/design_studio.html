@@ -20,7 +20,12 @@
             <span class="font-display text-xl font-bold tracking-wider text-violet-500">MenMo5i</span>
             <span class="text-xs bg-neutral-900 px-2 py-0.5 rounded text-neutral-400 border border-neutral-800">Studio v1.0</span>
         </div>
-        <a href="/" class="text-xs text-neutral-400 hover:text-white transition">← Back to Gallery</a>
+        <div class="flex items-center gap-3">
+            {% if user.is_authenticated %}
+            <a href="{% url 'my_designs' %}" class="text-xs text-neutral-400 hover:text-white transition">My Designs</a>
+            {% endif %}
+            <a href="/" class="text-xs text-neutral-400 hover:text-white transition">← Back to Gallery</a>
+        </div>
     </header>
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
@@ -45,6 +50,29 @@
                 {% endif %}
 
                 <hr class="border-neutral-900" />
+
+                {% if user.is_authenticated and saved_prompts %}
+                <div class="space-y-2">
+                    <label class="block text-xs font-medium tracking-wide uppercase text-neutral-400">Recall saved prompt</label>
+                    <select id="prompt-history-select" class="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-3 text-sm text-neutral-200 focus:outline-none focus:border-violet-500 transition">
+                        <option value="">— Select a saved prompt —</option>
+                        {% for sp in saved_prompts %}
+                            <option value="{{ sp.prompt }}">{{ sp.prompt|truncatechars:60 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <div class="space-y-2">
+                    <label class="block text-xs font-medium tracking-wide uppercase text-neutral-400">Style preset</label>
+                    <div class="flex flex-wrap gap-2" id="style-presets">
+                        {% for preset in style_presets %}
+                        <button type="button" data-key="{{ preset.key }}" data-suffix="{{ preset.suffix }}" class="style-preset-btn rounded-full border px-3 py-1.5 text-xs font-mono tracking-wider transition-all duration-200 {% if preset.key == 'none' %}border-violet-500 bg-violet-500 text-black{% else %}border-neutral-800 bg-neutral-950/60 text-neutral-400 hover:text-white hover:border-neutral-600{% endif %}">
+                            {{ preset.label }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
 
                 <div class="space-y-2">
                     <label class="block text-xs font-medium tracking-wide uppercase text-neutral-400">Use your own design</label>
@@ -72,11 +100,19 @@
                     <label class="block text-xs font-medium tracking-wide uppercase text-neutral-400">Design Prompt</label>
                     <textarea 
                         name="prompt" 
+                        id="prompt-input"
                         rows="4" 
                         placeholder="e.g., cyberpunk dragon with neon green outlines, geometric tribal patterns..."
                         class="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 text-sm text-neutral-200 focus:outline-none focus:border-violet-500 resize-none transition"
                         required>{% if prompt_used %}{{ prompt_used }}{% endif %}</textarea>
                 </div>
+
+                {% if user.is_authenticated %}
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="save_prompt" value="1" class="rounded border-neutral-800 bg-neutral-950 text-violet-500 focus:ring-violet-500">
+                    <span class="text-xs text-neutral-400">Save this prompt for later</span>
+                </label>
+                {% endif %}
 
                 <button type="submit" class="w-full font-display font-medium tracking-wider text-sm bg-violet-600 hover:bg-violet-500 active:scale-[0.99] text-black py-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-violet-950/20">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -133,5 +169,57 @@
         &copy; 2026 MenMo5i Engine. All architectural system parameters functional.
     </footer>
 
+    <script>
+        // Style presets: append suffix to prompt
+        const promptInput = document.getElementById('prompt-input');
+        const presetBtns = document.querySelectorAll('.style-preset-btn');
+        let activePreset = 'none';
+
+        presetBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const key = this.dataset.key;
+                const suffix = this.dataset.suffix;
+
+                presetBtns.forEach(b => {
+                    b.classList.remove('border-violet-500', 'bg-violet-500', 'text-black');
+                    b.classList.add('border-neutral-800', 'bg-neutral-950/60', 'text-neutral-400');
+                });
+                this.classList.remove('border-neutral-800', 'bg-neutral-950/60', 'text-neutral-400');
+                this.classList.add('border-violet-500', 'bg-violet-500', 'text-black');
+
+                activePreset = key;
+                updatePromptSuffix();
+            });
+        });
+
+        function updatePromptSuffix() {
+            let text = promptInput.value;
+            // Remove any existing style suffix
+            presetBtns.forEach(b => {
+                const s = b.dataset.suffix;
+                if (s) {
+                    text = text.replace(new RegExp(', ' + s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$'), '');
+                    text = text.replace(new RegExp(', ' + s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), '');
+                }
+            });
+            text = text.trim();
+            const activeSuffix = document.querySelector('.style-preset-btn[data-key="' + activePreset + '"]').dataset.suffix;
+            if (activeSuffix && activePreset !== 'none') {
+                if (text) text += ', ';
+                text += activeSuffix;
+            }
+            promptInput.value = text;
+        }
+
+        // Prompt history select
+        const historySelect = document.getElementById('prompt-history-select');
+        if (historySelect) {
+            historySelect.addEventListener('change', function() {
+                if (this.value) {
+                    promptInput.value = this.value;
+                }
+            });
+        }
+    </script>
 </body>
 </html>

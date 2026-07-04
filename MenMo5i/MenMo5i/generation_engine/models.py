@@ -41,6 +41,19 @@ class GeneratedArt(models.Model):
 
 from django.db import models
 
+class SavedPrompt(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='saved_prompts')
+    prompt = models.TextField()
+    category = models.CharField(max_length=32, choices=DesignSession.Category.choices, default=DesignSession.Category.ABSTRACT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username}: {self.prompt[:50]}"
+
+
 class ShirtTemplate(models.Model):
     name = models.CharField(max_length=100) # e.g., "Oversized Boxy Black Tee"
     blank_image = models.ImageField(upload_to="templates/blanks/") # Real shirt image

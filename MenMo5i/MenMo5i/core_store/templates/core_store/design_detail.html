@@ -8,10 +8,19 @@
             <div class="text-xs tracking-[0.3em] text-violet-500 font-bold uppercase mb-2">// DESIGN_SESSION / DETAIL_VIEW</div>
             <h1 class="font-display text-4xl md:text-7xl text-white">{{ session.get_category_display }}</h1>
         </div>
-        <a href="{% url 'community:gallery' %}"
-           class="inline-flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/60 px-5 py-2.5 text-[11px] font-display tracking-[0.28em] text-zinc-400 transition-all duration-300 hover:border-violet-500 hover:text-violet-400">
-            BACK TO GALLERY
-        </a>
+        <div class="flex gap-3">
+            {% if user.is_authenticated and session.user != user %}
+                <form action="{% url 'remix_design' session.id %}" method="get">
+                    <button type="submit" class="inline-flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/60 px-5 py-2.5 text-[11px] font-display tracking-[0.28em] text-zinc-400 transition-all duration-300 hover:border-violet-500 hover:text-violet-400">
+                        REMIX
+                    </button>
+                </form>
+            {% endif %}
+            <a href="{% url 'community:gallery' %}"
+               class="inline-flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/60 px-5 py-2.5 text-[11px] font-display tracking-[0.28em] text-zinc-400 transition-all duration-300 hover:border-violet-500 hover:text-violet-400">
+                BACK TO GALLERY
+            </a>
+        </div>
     </div>
 
     {% with art=session.artworks.first %}
@@ -58,6 +67,11 @@
                         </div>
 
                         <div>
+                            <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1">Likes</div>
+                            <span class="text-zinc-400 text-sm">{{ session.like_count|default:0 }}</span>
+                        </div>
+
+                        <div>
                             <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1">Status</div>
                             <span class="rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1.5 text-xs font-mono tracking-[0.25em] uppercase text-zinc-400">
                                 {{ session.status }}
@@ -75,14 +89,63 @@
                     </div>
 
                     {% if user.is_authenticated %}
-                    <form action="{% url 'cart_add' art.id %}" method="post" class="pt-4 border-t border-zinc-900">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                        <button type="submit"
-                                class="w-full inline-flex items-center justify-center rounded-full border border-violet-500 bg-violet-500 text-black py-4 text-sm font-display tracking-[0.25em] hover:bg-white hover:border-white hover:text-black transition-all duration-300 shadow-[0_10px_30px_rgba(139,92,246,0.15)]">
-                            ADD TO CART — {{ art.price }} TND
-                        </button>
-                    </form>
+                        <div class="flex gap-2 pt-2">
+                            {% if session.user != user %}
+                            <form action="{% url 'community:toggle_like' art.id %}" method="post" class="flex-1">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full inline-flex items-center justify-center rounded-full border border-zinc-700 bg-zinc-950/60 py-3 text-sm font-display tracking-[0.25em] transition-all duration-300 {% if session.is_liked %}text-violet-400 border-violet-500{% else %}text-zinc-400 hover:border-violet-500 hover:text-violet-400{% endif %}">
+                                    <svg class="w-5 h-5 mr-2 {% if session.is_liked %}fill-violet-500{% endif %}" viewBox="0 0 24 24" fill="{% if session.is_liked %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                                    {{ session.like_count|default:0 }} LIKE{% if session.like_count|default:0 != 1 %}S{% endif %}
+                                </button>
+                            </form>
+                            {% endif %}
+                            <a href="{% url 'variations' session.id %}" class="flex-1">
+                                <button type="button" class="w-full inline-flex items-center justify-center rounded-full border border-zinc-700 bg-zinc-950/60 text-zinc-400 py-3 text-sm font-display tracking-[0.25em] hover:border-violet-500 hover:text-violet-400 transition-all duration-300">
+                                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                    VARIATIONS
+                                </button>
+                            </a>
+                            {% if session.user != user %}
+                            <form action="{% url 'remix_design' session.id %}" method="get" class="flex-1">
+                                <button type="submit" class="w-full inline-flex items-center justify-center rounded-full border border-zinc-700 bg-zinc-950/60 text-zinc-400 py-3 text-sm font-display tracking-[0.25em] hover:border-violet-500 hover:text-violet-400 transition-all duration-300">
+                                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                    REMIX
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+
+                        <form action="{% url 'cart_add' art.id %}" method="post" class="pt-4 border-t border-zinc-900 space-y-4">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1 block">Size</label>
+                                    <select name="size" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-violet-500">
+                                        <option value="s">S</option>
+                                        <option value="m" selected>M</option>
+                                        <option value="l">L</option>
+                                        <option value="xl">XL</option>
+                                        <option value="xxl">2XL</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500 mb-1 block">Color</label>
+                                    <select name="color" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-violet-500">
+                                        <option value="black" selected>Black</option>
+                                        <option value="white">White</option>
+                                        <option value="heather_grey">Heather Grey</option>
+                                        <option value="navy">Navy</option>
+                                        <option value="forest_green">Forest Green</option>
+                                        <option value="burgundy">Burgundy</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit"
+                                    class="w-full inline-flex items-center justify-center rounded-full border border-violet-500 bg-violet-500 text-black py-4 text-sm font-display tracking-[0.25em] hover:bg-white hover:border-white hover:text-black transition-all duration-300 shadow-[0_10px_30px_rgba(139,92,246,0.15)]">
+                                ADD TO CART — {{ art.price }} TND
+                            </button>
+                        </form>
                     {% else %}
                     <div class="pt-4 border-t border-zinc-900">
                         <a href="{% url 'login' %}?next={{ request.path }}"

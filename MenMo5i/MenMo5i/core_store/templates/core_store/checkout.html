@@ -93,7 +93,7 @@
                             </div>
                             <div class="min-w-0">
                                 <p class="text-white font-display text-xs truncate">{{ item.art.session.raw_prompt|truncatechars:25 }}</p>
-                                <p class="text-zinc-500 font-mono text-[10px]">x{{ item.quantity }}</p>
+                                <p class="text-zinc-500 font-mono text-[10px]">x{{ item.quantity }} &middot; {{ item.get_size_display|upper }} / {{ item.get_color_display }}</p>
                             </div>
                         </div>
                         <span class="text-white font-mono text-xs whitespace-nowrap">{{ item.total_price }} TND</span>

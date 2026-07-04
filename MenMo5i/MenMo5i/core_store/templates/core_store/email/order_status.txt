@@ -1,0 +1,15 @@
+MenMo5i — Order #{{ order.pk }} Update
+
+Hi {{ order.shipping_name }},
+
+Your order #{{ order.pk }} is now: {{ order.get_status_display|upper }}
+
+{% if note %}{{ note }}{% endif %}
+
+Order Summary:
+{% for item in order.items.all %}- {{ item.quantity }}x {{ item.get_size_display|upper }} / {{ item.get_color_display }} — {{ item.art.session.raw_prompt|truncatechars:60 }}
+{% endfor %}
+Total: {{ order.total }} TND
+Shipping to: {{ order.shipping_address }}, {{ order.shipping_city }}
+
+Thank you for shopping with MenMo5i.

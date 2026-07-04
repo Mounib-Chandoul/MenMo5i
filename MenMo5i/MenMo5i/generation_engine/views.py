@@ -1,18 +1,33 @@
 import io
+import json
 import os
 import uuid
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_POST
 
-from .models import DesignSession, GeneratedArt, ShirtTemplate
+from .models import DesignSession, GeneratedArt, SavedPrompt, ShirtTemplate
 from .services.ai_engine import generate_design_from_prompt, generate_design_from_prompt_and_image
 from .services.compositor import composite_design_on_shirt
 from .services.content_filter import check_prompt
+
+
+STYLE_PRESETS = [
+    {'key': 'none', 'label': 'None', 'suffix': ''},
+    {'key': 'cyberpunk', 'label': 'Cyberpunk', 'suffix': 'cyberpunk style, neon colors, dark background, futuristic, tech patterns'},
+    {'key': 'minimal', 'label': 'Minimal', 'suffix': 'minimalist style, clean lines, simple shapes, negative space, monochrome palette'},
+    {'key': 'vintage', 'label': 'Vintage', 'suffix': 'vintage retro style, distressed, worn look, 80s aesthetic, faded colors'},
+    {'key': 'tribal', 'label': 'Tribal', 'suffix': 'tribal patterns, geometric, african inspired, bold symmetrical shapes, cultural motifs'},
+    {'key': 'neon', 'label': 'Neon', 'suffix': 'neon glow style, vibrant bright colors, glowing outlines, dark background, electric'},
+    {'key': 'graffiti', 'label': 'Graffiti', 'suffix': 'graffiti street art style, spray paint texture, wild style lettering, urban'},
+    {'key': 'abstract', 'label': 'Abstract', 'suffix': 'abstract geometric art, fluid shapes, gradient colors, modern art style'},
+]
 
 
 def _save_design_image(pil_image, prompt):
@@ -52,7 +67,6 @@ def trigger_generation_placeholder(request):
         status='Generated',
     )
 
-    # Generate design image from prompt via AI
     design_img = generate_design_from_prompt(user_prompt)
     design_path = _save_design_image(design_img, user_prompt)
 
@@ -72,7 +86,12 @@ def trigger_generation_placeholder(request):
 
 
 def design_view(request):
-    context = {}
+    context = {
+        'style_presets': STYLE_PRESETS,
+    }
+
+    if request.user.is_authenticated:
+        context['saved_prompts'] = SavedPrompt.objects.filter(user=request.user)[:20]
 
     if request.method == 'POST':
         if not request.user.is_authenticated:
@@ -82,6 +101,7 @@ def design_view(request):
         user_prompt = request.POST.get('prompt', '').strip()
         logo = request.FILES.get('logo')
         inspiration = request.FILES.get('inspiration')
+        save_prompt = request.POST.get('save_prompt') == '1'
 
         if not user_prompt:
             messages.error(request, "Please provide a prompt.")
@@ -92,9 +112,14 @@ def design_view(request):
             messages.error(request, result['reason'])
             return render(request, 'design_studio.html', context)
 
-        # Get or generate the design image
+        if save_prompt and request.user.is_authenticated:
+            SavedPrompt.objects.get_or_create(
+                user=request.user,
+                prompt=user_prompt,
+                defaults={'category': request.POST.get('category', DesignSession.Category.ABSTRACT)},
+            )
+
         if logo:
-            # User uploaded a final design file — use directly
             upload_dir = settings.MEDIA_ROOT / 'uploads'
             upload_dir.mkdir(parents=True, exist_ok=True)
             upload_name = f"{uuid.uuid4().hex}_{logo.name}"
@@ -104,7 +129,6 @@ def design_view(request):
                     dst.write(chunk)
             design_rel_path = str(upload_path.relative_to(settings.MEDIA_ROOT))
         elif inspiration:
-            # Inspiration image + prompt → AI generates a new design
             upload_dir = settings.MEDIA_ROOT / 'uploads'
             upload_dir.mkdir(parents=True, exist_ok=True)
             insp_name = f"insp_{uuid.uuid4().hex}_{inspiration.name}"
@@ -115,7 +139,6 @@ def design_view(request):
             design_img = generate_design_from_prompt_and_image(user_prompt, str(insp_path))
             design_rel_path = _save_design_image(design_img, user_prompt)
         else:
-            # Text-only — generate design from prompt via AI
             design_img = generate_design_from_prompt(user_prompt)
             design_rel_path = _save_design_image(design_img, user_prompt)
 
@@ -155,3 +178,31 @@ def design_view(request):
             return render(request, 'design_studio.html', context)
 
     return render(request, 'design_studio.html', context)
+
+
+@login_required
+@require_POST
+def save_prompt_view(request):
+    prompt = (request.POST.get('prompt') or '').strip()
+    category = (request.POST.get('category') or DesignSession.Category.ABSTRACT).strip().lower()
+    if prompt:
+        SavedPrompt.objects.get_or_create(
+            user=request.user,
+            prompt=prompt,
+            defaults={'category': category},
+        )
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'status': 'error', 'detail': 'Prompt required'}, status=400)
+
+
+@login_required
+def saved_prompts_json(request):
+    prompts = SavedPrompt.objects.filter(user=request.user).values('id', 'prompt', 'category', 'created_at')
+    return JsonResponse({'prompts': list(prompts)})
+
+
+@require_POST
+@login_required
+def delete_saved_prompt_view(request, prompt_id):
+    SavedPrompt.objects.filter(id=prompt_id, user=request.user).delete()
+    return JsonResponse({'status': 'ok'})

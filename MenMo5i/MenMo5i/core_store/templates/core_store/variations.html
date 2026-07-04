@@ -1,0 +1,52 @@
+{% extends "core_store/base.html" %}
+{% block title %}MenMo5i // Variations{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<section class="min-h-screen pt-28 pb-20 px-6 lg:px-12 relative">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.16),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(255,255,255,0.06),_transparent_25%)]"></div>
+    <div class="relative max-w-7xl mx-auto space-y-10">
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div class="space-y-4 max-w-3xl">
+                <div class="font-mono text-xs text-violet-500 tracking-[0.35em] uppercase">[ AI VARIATIONS ]</div>
+                <h1 class="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.9] text-white">GENERATED VARIANTS</h1>
+                <p class="text-zinc-400 max-w-2xl text-base md:text-lg leading-8">Each variation uses your original design as inspiration with a different creative direction. Click any to view details.</p>
+            </div>
+            <a href="{% url 'design_detail' original.id %}"
+               class="rounded-full border border-zinc-800 bg-zinc-950/70 px-6 py-3 text-sm font-display tracking-[0.22em] text-white hover:border-violet-500 hover:text-violet-400 transition-all duration-300">
+                BACK TO ORIGINAL
+            </a>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-2">
+            {% for session in variations %}
+                {% with art=session.artworks.first %}
+                <a href="{% url 'design_detail' session.id %}" class="block group">
+                <article class="rounded-[2rem] border border-zinc-900 bg-zinc-950/85 backdrop-blur-xl overflow-hidden shadow-2xl transition-all duration-300 hover:border-violet-500/40">
+                    <div class="relative aspect-[4/5] bg-zinc-900 overflow-hidden">
+                        {% if art %}
+                            <canvas data-3d-viewer="{{ art.image_url }}" class="w-full h-full block"></canvas>
+                        {% else %}
+                            <div class="w-full h-full flex items-center justify-center text-zinc-500 font-mono tracking-[0.3em] uppercase">No preview</div>
+                        {% endif %}
+                        <div class="absolute top-4 left-4 rounded-full bg-zinc-950/85 border border-white/10 px-3 py-2 text-[10px] font-mono tracking-[0.25em] uppercase text-violet-400">
+                            {{ session.get_category_display }}
+                        </div>
+                    </div>
+                    <div class="p-5 space-y-3">
+                        <div class="font-display text-xl text-white group-hover:text-violet-400 transition-colors">@{{ session.user.username }}</div>
+                        <p class="text-zinc-400 text-sm leading-7">{{ session.raw_prompt }}</p>
+                        <span class="inline-block rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1 text-[10px] font-mono tracking-[0.25em] uppercase text-zinc-500">{{ session.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </article>
+                </a>
+                {% endwith %}
+            {% empty %}
+                <div class="rounded-[2rem] border border-zinc-900 bg-zinc-950/85 p-8 text-zinc-400 lg:col-span-2 text-center">
+                    <div class="font-mono text-xs text-zinc-600 uppercase tracking-[0.35em]">SYSTEM_STATUS // GENERATION_FAILED</div>
+                    <p class="text-zinc-400 max-w-sm mx-auto text-sm mt-2">Could not generate variations. Try again later.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

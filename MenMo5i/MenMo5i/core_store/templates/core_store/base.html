@@ -99,6 +99,9 @@
                         <a href="{% url 'cart' %}" class="inline-flex items-center justify-center rounded-full border border-violet-500/50 bg-zinc-950/40 px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-violet-400 transition-all duration-300 hover:bg-violet-500 hover:text-black">
                             CART
                         </a>
+                        <a href="{% url 'design' %}" class="hidden md:inline-flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/40 px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-zinc-400 transition-all duration-300 hover:border-violet-500 hover:text-violet-400">
+                            DESIGN
+                        </a>
                         <a href="{% url 'order_history' %}" class="hidden md:inline-flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-950/40 px-4 sm:px-5 py-2 text-[11px] sm:text-xs font-display tracking-[0.28em] text-zinc-400 transition-all duration-300 hover:border-violet-500 hover:text-violet-400">
                             ORDERS
                         </a>
@@ -142,6 +145,7 @@
                     <a href="{% url 'account' %}" class="mobile-nav-link rounded-2xl border border-white/10 bg-white px-5 py-4 text-black font-display tracking-[0.25em]">{{ user.get_full_name|default:user.username }}</a>
                     <a href="{% url 'community:gallery' %}" class="mobile-nav-link rounded-2xl border border-zinc-800 bg-zinc-950/70 px-5 py-4 text-white font-display tracking-[0.25em]">COMMUNITY</a>
                     <a href="{% url 'cart' %}" class="mobile-nav-link rounded-2xl border border-violet-500/30 bg-zinc-950/70 px-5 py-4 text-violet-400 font-display tracking-[0.25em]">CART</a>
+                    <a href="{% url 'design' %}" class="mobile-nav-link rounded-2xl border border-zinc-800 bg-zinc-950/70 px-5 py-4 text-zinc-300 font-display tracking-[0.25em]">DESIGN</a>
                     <a href="{% url 'order_history' %}" class="mobile-nav-link rounded-2xl border border-zinc-800 bg-zinc-950/70 px-5 py-4 text-zinc-300 font-display tracking-[0.25em]">ORDERS</a>
                     <form action="{% url 'logout' %}" method="post">
                         {% csrf_token %}

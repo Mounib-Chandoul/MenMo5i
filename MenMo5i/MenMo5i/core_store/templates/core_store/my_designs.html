@@ -1,0 +1,66 @@
+{% extends "core_store/base.html" %}
+{% block title %}MenMo5i // My Designs{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<section class="min-h-screen pt-28 pb-20 px-6 lg:px-12 relative">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.16),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(255,255,255,0.06),_transparent_25%)]"></div>
+    <div class="relative max-w-7xl mx-auto space-y-10">
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div class="space-y-4 max-w-3xl">
+                <div class="font-mono text-xs text-violet-500 tracking-[0.35em] uppercase">[ MY DESIGNS ]</div>
+                <h1 class="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.9] text-white">YOUR PORTFOLIO</h1>
+                <p class="text-zinc-400 max-w-2xl text-base md:text-lg leading-8">All the shirt concepts you've generated. Click any to view, export, or add to cart.</p>
+            </div>
+            <a href="{% url 'generation_engine:design' %}" class="rounded-full border border-violet-500 bg-violet-500 px-6 py-3 text-sm font-display tracking-[0.22em] text-black hover:bg-white hover:border-white transition-all duration-300 shadow-[0_10px_30px_rgba(139,92,246,0.15)]">
+                NEW DESIGN
+            </a>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+            {% for session in sessions %}
+                {% with art=session.artworks.first %}
+                <a href="{% url 'design_detail' session.id %}" class="block group">
+                <article class="rounded-[2rem] border border-zinc-900 bg-zinc-950/85 backdrop-blur-xl overflow-hidden shadow-2xl transition-all duration-300 hover:border-violet-500/40">
+                    <div class="relative aspect-[4/5] bg-zinc-900 overflow-hidden">
+                        {% if art %}
+                            <canvas data-3d-viewer="{{ art.image_url }}" class="w-full h-full block"></canvas>
+                        {% else %}
+                            <div class="w-full h-full flex items-center justify-center text-zinc-500 font-mono tracking-[0.3em] uppercase">No preview</div>
+                        {% endif %}
+                        <div class="absolute top-4 left-4 rounded-full bg-zinc-950/85 border border-white/10 px-3 py-2 text-[10px] font-mono tracking-[0.25em] uppercase text-violet-400">
+                            {{ session.get_category_display }}
+                        </div>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <div class="text-[10px] font-mono tracking-[0.35em] uppercase text-zinc-500">Designer</div>
+                                <div class="font-display text-2xl text-white group-hover:text-violet-400 transition-colors duration-300">{{ session.user.get_full_name|default:session.user.username }}</div>
+                                <div class="text-sm text-zinc-500">@{{ session.user.username }}</div>
+                            </div>
+                        </div>
+                        <p class="text-zinc-400 text-sm leading-7">{{ session.raw_prompt }}</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1 text-[10px] font-mono tracking-[0.25em] uppercase text-zinc-500">{{ session.created_at|date:"M d, Y" }}</span>
+                            <span class="rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1 text-[10px] font-mono tracking-[0.25em] uppercase text-zinc-500">{{ session.like_count|default:0 }} Likes</span>
+                            <span class="rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1 text-[10px] font-mono tracking-[0.25em] uppercase text-zinc-500">{{ session.status }}</span>
+                        </div>
+                    </div>
+                </article>
+                </a>
+                {% endwith %}
+            {% empty %}
+                <div class="rounded-[2rem] border border-zinc-900 bg-zinc-950/85 p-8 text-zinc-400 lg:col-span-2 xl:col-span-3 text-center space-y-4">
+                    <div class="font-mono text-xs text-zinc-600 uppercase tracking-[0.35em]">SYSTEM_STATUS // NO DESIGNS</div>
+                    <p class="text-zinc-400 max-w-sm mx-auto text-sm">You haven't generated any designs yet. Head to the design studio to create your first one.</p>
+                    <div class="pt-2">
+                        <a href="{% url 'generation_engine:design' %}" class="inline-flex items-center justify-center rounded-full border border-violet-500 bg-violet-500 px-6 py-3 text-xs font-display tracking-[0.22em] text-black hover:bg-white hover:border-white transition-all duration-300">
+                            CREATE DESIGN
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

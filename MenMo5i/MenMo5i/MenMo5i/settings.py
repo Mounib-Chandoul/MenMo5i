@@ -140,3 +140,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 REPLICATE_API_TOKEN = os.getenv('REPLICATE_API_TOKEN', '')
+
+# Email (console backend for dev — prints to terminal instead of sending)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@menmo5i.tn'
