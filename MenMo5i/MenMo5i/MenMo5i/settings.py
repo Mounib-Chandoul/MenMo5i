@@ -141,6 +141,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 REPLICATE_API_TOKEN = os.getenv('REPLICATE_API_TOKEN', '')
 HF_API_TOKEN = os.getenv('HF_API_TOKEN', '')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
 
 # Email (console backend for dev — prints to terminal instead of sending)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

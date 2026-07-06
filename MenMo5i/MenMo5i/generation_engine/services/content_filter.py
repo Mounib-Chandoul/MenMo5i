@@ -1,6 +1,6 @@
 import re
 
-# Terms that are blocked entirely (slurs, hate speech, violence)
+# Terms that are blocked entirely
 BLOCKED_WORDS = set([
     # Violence / gore
     "gore", "blood", "murder", "kill", "corpse", "dead body", "decapitation",
@@ -8,9 +8,20 @@ BLOCKED_WORDS = set([
     "cannibalism", "massacre", "genocide", "terror", "mass shooting",
     # Hate speech
     "nazi", "swastika", "kkk", "white supremacy", "racial slur", "racist",
-    # NSFW / explicit
+    # NSFW / explicit — aggressive blocking
     "nude", "naked", "sex", "porn", "explicit", "nsfw", "erotic", "xxx",
     "hentai", "rule34", "sexual", "pornographic", "gross", "gaping",
+    "nsfw", "milf", "bikini", "lingerie", "underwear", "swimsuit",
+    "cleavage", "boobs", "tits", "ass", "butt", "thong", "stripper",
+    "stripping", "strip club", "voyeur", "fetish", "bdsm", "kink",
+    "masturbat", "orgasm", "cum", "semen", "penis", "vagina", "dildo",
+    "prostitut", "escort", "hooker", "camgirl", "onlyfans",
+    "anime girl", "waifu", "thicc", "sexy", "hot girl", "hot woman",
+    "seductive", "sultry", "provocative", "sensual", "risque",
+    "playboy", "penthouse", "topless", "bottomless", "bare chest",
+    "torso", "navel", "midriff", "belly button", "see-through",
+    "wet t-shirt", "wet look", "bondage", "domination",
+    "lolita", "shota", "cub", "young girl", "young boy", "minor",
     # Drugs / illegal
     "cocaine", "heroin", "meth", "crack", "inject", "needle drug",
     # Prohibited symbols

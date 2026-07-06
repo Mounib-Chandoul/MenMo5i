@@ -68,6 +68,7 @@ def trigger_generation_placeholder(request):
     category_values = {choice[0] for choice in DesignSession.Category.choices}
     category = raw_category if raw_category in category_values else DesignSession.Category.ABSTRACT
     is_public = request.POST.get("is_public") != "0"
+    has_background = request.POST.get("has_background") == "1"
 
     session = DesignSession.objects.create(
         user=request.user,
@@ -77,7 +78,7 @@ def trigger_generation_placeholder(request):
         status='Generated',
     )
 
-    design_img = generate_design_from_prompt(user_prompt, category=category)
+    design_img = generate_design_from_prompt(user_prompt, category=category, has_background=has_background)
     design_path = _save_design_image(design_img, user_prompt)
 
     art = GeneratedArt.objects.create(
@@ -132,6 +133,7 @@ def design_view(request):
         raw_category = (request.POST.get("category") or DesignSession.Category.ABSTRACT).strip().lower()
         category_values = {c[0] for c in DesignSession.Category.choices}
         category = raw_category if raw_category in category_values else DesignSession.Category.ABSTRACT
+        has_background = request.POST.get("has_background") == "1"
 
         if logo:
             upload_dir = settings.MEDIA_ROOT / 'uploads'
@@ -153,7 +155,7 @@ def design_view(request):
             design_img = generate_design_from_prompt_and_image(user_prompt, str(insp_path))
             design_rel_path = _save_design_image(design_img, user_prompt)
         else:
-            design_img = generate_design_from_prompt(user_prompt, category=category)
+            design_img = generate_design_from_prompt(user_prompt, category=category, has_background=has_background)
             design_rel_path = _save_design_image(design_img, user_prompt)
 
         template = ShirtTemplate.objects.first()

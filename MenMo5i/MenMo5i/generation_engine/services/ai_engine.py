@@ -8,7 +8,9 @@ import replicate
 from django.conf import settings
 from PIL import Image, ImageDraw
 
+from .gemini_inference import generate_image as gemini_generate
 from .hf_inference import generate_image_from_prompt as hf_generate
+from .pollinations_inference import generate_image as pollinations_generate
 from .prompt_engine import enhance_prompt, NEGATIVE_PROMPT
 
 logger = logging.getLogger(__name__)
@@ -21,10 +23,11 @@ def _get_client():
     return replicate
 
 
-def _generate_fallback_design(prompt: str) -> Image.Image:
+def _generate_fallback_design(prompt: str, has_background: bool = False) -> Image.Image:
     """Generate a vibrant, fully-opaque geometric T-shirt design."""
     W, H = 1024, 1024
-    canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    bg_color = (255, 255, 255, 255) if has_background else (0, 0, 0, 0)
+    canvas = Image.new("RGBA", (W, H), bg_color)
     draw = ImageDraw.Draw(canvas)
 
     prompt_lower = prompt.lower()
@@ -169,32 +172,49 @@ def generate_design_from_prompt(
     prompt: str,
     category: str = "",
     style: str = "",
+    has_background: bool = False,
 ) -> Image.Image:
     """
     Generate a t-shirt print design from a text prompt.
 
     Provider chain (each fallback activates on exception):
     1. Replicate Flux Schnell  (fast, high quality)
-    2. Hugging Face SDXL        (serverless, no GPU needed locally)
-    3. Procedural PIL fallback  (always works, vibrant output)
+    2. Gemini 2.0 Flash         (free, modern)
+    3. Hugging Face SDXL        (serverless, free tier)
+    4. Pollinations.ai          (free, no token)
+    5. Procedural PIL fallback  (always works)
 
-    The raw *user* prompt is first passed through the prompt-engine so every
-    provider receives an enriched description.
+    When ``has_background=False`` (default) the result has a transparent
+    background suitable for compositing onto a shirt.
     """
     enhanced = enhance_prompt(prompt, category=category, style=style)
     logger.info("Enhanced prompt: %s", enhanced)
 
+    background_tag = ", clean white background" if has_background else ""
+
+    def _remove_bg(img: Image.Image) -> Image.Image:
+        if has_background:
+            return img
+        from .remove_bg import remove_background
+        return remove_background(img)
+
     try:
         img = _run_replicate("black-forest-labs/flux-schnell", {
-            "prompt": enhanced + ", clean white background",
+            "prompt": enhanced + background_tag,
             "num_outputs": 1,
             "num_inference_steps": 4,
             "output_format": "png",
         })
-        from .remove_bg import remove_background
-        return remove_background(img)
+        return _remove_bg(img)
     except Exception as exc:
         logger.warning("Replicate failed for prompt=%r: %s", prompt, exc)
+
+    try:
+        raw_bytes = gemini_generate(enhanced)
+        img = Image.open(io.BytesIO(raw_bytes)).convert("RGBA")
+        return _remove_bg(img)
+    except Exception as exc:
+        logger.warning("Gemini fallback failed for prompt=%r: %s", prompt, exc)
 
     try:
         raw_bytes = hf_generate(
@@ -202,12 +222,18 @@ def generate_design_from_prompt(
             negative_prompt=NEGATIVE_PROMPT,
         )
         img = Image.open(io.BytesIO(raw_bytes)).convert("RGBA")
-        from .remove_bg import remove_background
-        return remove_background(img)
+        return _remove_bg(img)
     except Exception as exc:
         logger.warning("Hugging Face fallback also failed for prompt=%r: %s", prompt, exc)
 
-    return _generate_fallback_design(enhanced)
+    try:
+        raw_bytes = pollinations_generate(enhanced)
+        img = Image.open(io.BytesIO(raw_bytes)).convert("RGBA")
+        return _remove_bg(img)
+    except Exception as exc:
+        logger.warning("Pollinations fallback also failed for prompt=%r: %s", prompt, exc)
+
+    return _generate_fallback_design(enhanced, has_background=has_background)
 
 
 def generate_design_from_prompt_and_image(prompt: str, inspiration_path: str) -> Image.Image:
@@ -223,7 +249,7 @@ def generate_design_from_prompt_and_image(prompt: str, inspiration_path: str) ->
                 "width": 1024,
                 "height": 1024,
                 "image": inspiration_path,
-                "prompt": enhanced + ", clean white background",
+                "prompt": enhanced,
                 "negative_prompt": NEGATIVE_PROMPT,
                 "num_inference_steps": 30,
                 "guidance_scale": 7.5,
