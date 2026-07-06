@@ -28,8 +28,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
         <div class="lg:col-span-3 relative overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/40 backdrop-blur-2xl p-4 group">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.06),_transparent_40%)] pointer-events-none"></div>
-            <div class="relative aspect-[4/5] bg-zinc-900 overflow-hidden rounded-[1.5rem] border border-white/5 cursor-grab active:cursor-grabbing">
-                <canvas data-3d-viewer="{{ art.image_url }}" class="w-full h-full block"></canvas>
+            <div class="relative aspect-[4/5] bg-zinc-900 overflow-hidden rounded-[1.5rem] border border-white/5">
+                <img src="{{ art.image_url }}" alt="Shirt design" class="w-full h-full object-contain block">
             </div>
         </div>
 

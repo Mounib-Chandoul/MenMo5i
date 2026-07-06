@@ -23,7 +23,7 @@
                 <article class="rounded-[2rem] border border-zinc-900 bg-zinc-950/85 backdrop-blur-xl overflow-hidden shadow-2xl transition-all duration-300 hover:border-violet-500/40">
                     <div class="relative aspect-[4/5] bg-zinc-900 overflow-hidden">
                         {% if art %}
-                            <canvas data-3d-viewer="{{ art.image_url }}" class="w-full h-full block"></canvas>
+                            <img src="{{ art.image_url }}" alt="Shirt preview" class="w-full h-full object-contain block">
                         {% else %}
                             <div class="w-full h-full flex items-center justify-center text-zinc-500 font-mono tracking-[0.3em] uppercase">No preview</div>
                         {% endif %}

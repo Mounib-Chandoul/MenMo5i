@@ -1,7 +1,10 @@
 import io
 import json
+import logging
 import os
 import uuid
+
+logger = logging.getLogger(__name__)
 
 from django.conf import settings
 from django.contrib import messages
@@ -12,10 +15,17 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 
+from asgiref.sync import sync_to_async
+
 from .models import DesignSession, GeneratedArt, SavedPrompt, ShirtTemplate
 from .services.ai_engine import generate_design_from_prompt, generate_design_from_prompt_and_image
 from .services.compositor import composite_design_on_shirt
 from .services.content_filter import check_prompt
+from .services.hf_inference import (
+    async_generate_image_from_prompt,
+    save_to_model_field,
+)
+from .services.prompt_engine import enhance_prompt, NEGATIVE_PROMPT
 
 
 STYLE_PRESETS = [
@@ -67,7 +77,7 @@ def trigger_generation_placeholder(request):
         status='Generated',
     )
 
-    design_img = generate_design_from_prompt(user_prompt)
+    design_img = generate_design_from_prompt(user_prompt, category=category)
     design_path = _save_design_image(design_img, user_prompt)
 
     art = GeneratedArt.objects.create(
@@ -119,6 +129,10 @@ def design_view(request):
                 defaults={'category': request.POST.get('category', DesignSession.Category.ABSTRACT)},
             )
 
+        raw_category = (request.POST.get("category") or DesignSession.Category.ABSTRACT).strip().lower()
+        category_values = {c[0] for c in DesignSession.Category.choices}
+        category = raw_category if raw_category in category_values else DesignSession.Category.ABSTRACT
+
         if logo:
             upload_dir = settings.MEDIA_ROOT / 'uploads'
             upload_dir.mkdir(parents=True, exist_ok=True)
@@ -139,7 +153,7 @@ def design_view(request):
             design_img = generate_design_from_prompt_and_image(user_prompt, str(insp_path))
             design_rel_path = _save_design_image(design_img, user_prompt)
         else:
-            design_img = generate_design_from_prompt(user_prompt)
+            design_img = generate_design_from_prompt(user_prompt, category=category)
             design_rel_path = _save_design_image(design_img, user_prompt)
 
         template = ShirtTemplate.objects.first()
@@ -159,7 +173,7 @@ def design_view(request):
             session = DesignSession.objects.create(
                 user=request.user,
                 raw_prompt=user_prompt,
-                category=request.POST.get('category', DesignSession.Category.ABSTRACT),
+                category=category,
                 is_public=True,
                 status='Generated',
             )
@@ -206,3 +220,86 @@ def saved_prompts_json(request):
 def delete_saved_prompt_view(request, prompt_id):
     SavedPrompt.objects.filter(id=prompt_id, user=request.user).delete()
     return JsonResponse({'status': 'ok'})
+
+
+# ---------------------------------------------------------------------------
+# Hugging Face Serverless Inference view
+# ---------------------------------------------------------------------------
+
+async def hf_generate_view(request):
+    """
+    Fully async view — calls Hugging Face Serverless Inference API (SDXL)
+    without blocking the main thread.
+
+    POST payload::
+
+        prompt       (required) — text description
+        category     (optional) — design category
+        is_public    (optional) — "0" or "1" (default "1")
+    """
+    if request.method != "POST":
+        return JsonResponse({"detail": "Method not allowed."}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({"detail": "Authentication required."}, status=401)
+
+    if request.content_type == "application/json":
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"detail": "Invalid JSON body."}, status=400)
+        user_prompt = (data.get("prompt") or "").strip()
+        raw_category = (data.get("category") or "").strip().lower()
+        is_public = data.get("is_public", "1") != "0"
+    else:
+        user_prompt = (request.POST.get("prompt") or "").strip()
+        raw_category = (request.POST.get("category") or "").strip().lower()
+        is_public = request.POST.get("is_public") != "0"
+
+    if not user_prompt:
+        return JsonResponse({"detail": "Prompt is required."}, status=400)
+
+    result = await sync_to_async(check_prompt)(user_prompt)
+    if not result["allowed"]:
+        return JsonResponse({"detail": result["reason"]}, status=400)
+
+    category_values = {c[0] for c in DesignSession.Category.choices}
+    category = raw_category if raw_category in category_values else DesignSession.Category.ABSTRACT
+
+    enhanced_prompt = enhance_prompt(user_prompt, category=category)
+    logger.info("Enhanced prompt for HF view: %s", enhanced_prompt)
+
+    try:
+        image_bytes = await async_generate_image_from_prompt(
+            enhanced_prompt,
+            negative_prompt=NEGATIVE_PROMPT,
+        )
+    except RuntimeError as exc:
+        logger.exception("HF image generation failed for prompt=%r", user_prompt)
+        return JsonResponse({"detail": str(exc)}, status=502)
+
+    session = await sync_to_async(DesignSession.objects.create)(
+        user=request.user,
+        raw_prompt=user_prompt,
+        category=category,
+        is_public=is_public,
+        status="Generated",
+    )
+
+    art = await sync_to_async(GeneratedArt.objects.create)(
+        session=session,
+        design_image=None,
+        transparent_png_url="",
+    )
+
+    path = await sync_to_async(save_to_model_field)(
+        image_bytes, art, field_name="design_image",
+    )
+
+    return JsonResponse({
+        "session_id": str(session.id),
+        "status": "Generated",
+        "category": session.category,
+        "is_public": session.is_public,
+        "image_url": art.image_url,
+        "storage_path": path,
+    })

@@ -1,4 +1,5 @@
 import io
+import logging
 import math
 import os
 import random
@@ -6,6 +7,11 @@ import random
 import replicate
 from django.conf import settings
 from PIL import Image, ImageDraw
+
+from .hf_inference import generate_image_from_prompt as hf_generate
+from .prompt_engine import enhance_prompt, NEGATIVE_PROMPT
+
+logger = logging.getLogger(__name__)
 
 
 def _get_client():
@@ -16,7 +22,7 @@ def _get_client():
 
 
 def _generate_fallback_design(prompt: str) -> Image.Image:
-    """Generate a simple geometric T-shirt design from prompt keywords."""
+    """Generate a vibrant, fully-opaque geometric T-shirt design."""
     W, H = 1024, 1024
     canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
@@ -24,16 +30,15 @@ def _generate_fallback_design(prompt: str) -> Image.Image:
     prompt_lower = prompt.lower()
     rng = random.Random(hash(prompt) & 0xFFFFFFFF)
 
-    # Pick a color scheme based on prompt keywords
     palettes = {
-        "violet": [(139, 92, 246), (124, 58, 237), (167, 139, 250), (196, 181, 253)],
-        "purple": [(147, 51, 234), (168, 85, 247), (192, 132, 252), (216, 180, 254)],
-        "cyan": [(6, 182, 212), (34, 211, 238), (103, 232, 249), (165, 243, 252)],
-        "green": [(34, 197, 94), (74, 222, 128), (134, 239, 172), (187, 247, 208)],
-        "red": [(239, 68, 68), (248, 113, 113), (252, 165, 165), (254, 202, 202)],
-        "blue": [(59, 130, 246), (96, 165, 250), (147, 197, 253), (191, 219, 254)],
-        "orange": [(251, 146, 60), (251, 191, 36), (253, 230, 138), (254, 243, 199)],
-        "neon": [(255, 0, 255), (0, 255, 255), (255, 255, 0), (255, 0, 128)],
+        "violet": [(130, 80, 245), (100, 50, 230), (170, 140, 250), (200, 180, 255)],
+        "purple": [(150, 50, 235), (170, 85, 250), (195, 135, 255), (220, 185, 255)],
+        "cyan":   [(0, 185, 215), (35, 215, 240), (105, 235, 250), (170, 245, 255)],
+        "green":  [(35, 200, 95), (75, 225, 130), (140, 245, 175), (190, 250, 210)],
+        "red":    [(240, 70, 70), (250, 115, 115), (255, 170, 170), (255, 205, 205)],
+        "blue":   [(60, 130, 250), (100, 170, 255), (150, 200, 255), (195, 220, 255)],
+        "orange": [(255, 150, 60), (255, 195, 40), (255, 235, 140), (255, 245, 200)],
+        "neon":   [(255, 0, 255), (0, 255, 255), (255, 255, 0), (255, 0, 128)],
     }
 
     color_key = "violet"
@@ -42,77 +47,117 @@ def _generate_fallback_design(prompt: str) -> Image.Image:
             color_key = k
             break
     colors = palettes[color_key]
+    # Fully opaque
+    colors = [c + (255,) for c in colors]
+
+    cx, cy = W // 2, H // 2
 
     if "skull" in prompt_lower or "death" in prompt_lower or "dark" in prompt_lower:
-        # Skull-like abstract shape
-        cx, cy = W // 2, H // 2
-        r = 200
-        draw.ellipse([cx - r, cy - r - 60, cx + r, cy + r - 60], fill=colors[0] + (200,))
-        draw.ellipse([cx - 80, cy - 100, cx - 30, cy - 20], fill=colors[1] + (220,))
-        draw.ellipse([cx + 30, cy - 100, cx + 80, cy - 20], fill=colors[1] + (220,))
-        # Mouth
-        draw.arc([cx - 100, cy + 40, cx + 100, cy + 140], 0, 180, fill=colors[2] + (200,), width=12)
-        # Teeth
-        for i in range(-3, 4):
-            tx = cx + i * 25
-            draw.rectangle([tx - 8, cy + 100, tx + 8, cy + 130], fill=colors[3] + (180,))
-    elif "flower" in prompt_lower or "nature" in prompt_lower or "plant" in prompt_lower:
-        # Geometric flower
-        cx, cy = W // 2, H // 2
+        # Bold skull-like abstract
+        r = 240
+        draw.ellipse([cx - r, cy - r - 80, cx + r, cy + r - 80], fill=colors[0])
+        draw.ellipse([cx - 100, cy - 120, cx - 40, cy - 30], fill=colors[1])
+        draw.ellipse([cx + 40, cy - 120, cx + 100, cy - 30], fill=colors[1])
+        draw.arc([cx - 130, cy + 30, cx + 130, cy + 160], 0, 180, fill=colors[2], width=18)
+        for i in range(-4, 5):
+            tx = cx + i * 28
+            draw.rectangle([tx - 10, cy + 90, tx + 10, cy + 130], fill=colors[3])
+
+    elif "flower" in prompt_lower or "nature" in prompt_lower or "plant" in prompt_lower or "rose" in prompt_lower or "lotus" in prompt_lower:
+        # Layered flower
         for i in range(8):
             angle = i * math.pi / 4
-            px = cx + int(120 * math.cos(angle))
-            py = cy + int(120 * math.sin(angle))
-            draw.ellipse([px - 60, py - 60, px + 60, py + 60], fill=colors[i % len(colors)] + (180,))
-        draw.ellipse([cx - 50, cy - 50, cx + 50, cy + 50], fill=colors[0] + (220,))
-    elif "geometric" in prompt_lower or "abstract" in prompt_lower or "pattern" in prompt_lower:
-        # Abstract geometric pattern
-        for _ in range(30):
-            x = rng.randint(0, W)
-            y = rng.randint(0, H)
-            s = rng.randint(30, 150)
-            rot = rng.randint(0, 360)
-            c = rng.choice(colors) + (rng.randint(120, 220),)
-            shape_type = rng.choice(["circle", "rect", "triangle"])
-            if shape_type == "circle":
-                draw.ellipse([x - s // 2, y - s // 2, x + s // 2, y + s // 2], fill=c)
-            elif shape_type == "rect":
-                r_rect = [
-                    x - s // 2,
-                    y - s // 2,
-                    x + s // 2,
-                    y + s // 2,
-                ]
-                draw.rectangle(r_rect, fill=c)
-            else:
-                draw.polygon([
-                    (x, y - s // 2),
-                    (x - s // 2, y + s // 2),
-                    (x + s // 2, y + s // 2),
-                ], fill=c)
-    else:
-        # Default: concentric shapes with the brand aesthetic
-        cx, cy = W // 2, H // 2
-        for i in range(10):
-            r = 220 - i * 20
-            alpha = 200 - i * 15
-            draw.ellipse([cx - r, cy - r, cx + r, cy + r],
-                         outline=colors[i % len(colors)] + (max(alpha, 40),), width=8)
-        # Central mark
-        draw.ellipse([cx - 60, cy - 60, cx + 60, cy + 60],
-                     fill=colors[0] + (200,))
-        # Star-like rays
+            px = cx + int(140 * math.cos(angle))
+            py = cy + int(140 * math.sin(angle))
+            draw.ellipse([px - 70, py - 70, px + 70, py + 70], fill=colors[i % len(colors)])
+        draw.ellipse([cx - 60, cy - 60, cx + 60, cy + 60], fill=colors[0])
+
+    elif "geometric" in prompt_lower or "pattern" in prompt_lower or "mandala" in prompt_lower:
+        # Rich geometric mandala
+        for ring in range(6):
+            r = 60 + ring * 70
+            n = 8 + ring * 4
+            for i in range(n):
+                angle = i * (2 * math.pi / n) + ring * 0.2
+                px = cx + int(r * math.cos(angle))
+                py = cy + int(r * math.sin(angle))
+                size = 60 - ring * 6
+                draw.ellipse([px - size, py - size, px + size, py + size],
+                             fill=colors[ring % len(colors)])
+        draw.ellipse([cx - 30, cy - 30, cx + 30, cy + 30], fill=colors[0])
+
+    elif "abstract" in prompt_lower:
+        # Bold overlapping circles
+        for i in range(6):
+            angle = i * math.pi / 3
+            offset = 90
+            px = cx + int(offset * math.cos(angle))
+            py = cy + int(offset * math.sin(angle))
+            r = 160 - i * 15
+            draw.ellipse([px - r, py - r, px + r, py + r], fill=colors[i % len(colors)])
+
+    elif "tribal" in prompt_lower or "cyberpunk" in prompt_lower or "neon" in prompt_lower:
+        # Bold angular tribal
+        points = []
         for i in range(12):
             angle = i * math.pi / 6
-            px = cx + int(160 * math.cos(angle))
-            py = cy + int(160 * math.sin(angle))
-            draw.line([(cx, cy), (px, py)], fill=colors[1] + (160,), width=6)
+            r = 300 if i % 2 == 0 else 150
+            points.append((cx + int(r * math.cos(angle)), cy + int(r * math.sin(angle))))
+        draw.polygon(points, fill=colors[0])
+        for i in range(8):
+            angle = i * math.pi / 4
+            px = cx + int(200 * math.cos(angle))
+            py = cy + int(200 * math.sin(angle))
+            draw.ellipse([px - 50, py - 50, px + 50, py + 50], fill=colors[1])
+
+    elif "star" in prompt_lower or "sun" in prompt_lower or "moon" in prompt_lower or "space" in prompt_lower:
+        # Star/sun burst
+        outer_r = 350
+        inner_r = 120
+        n_points = 24
+        star = []
+        for i in range(n_points * 2):
+            angle = i * math.pi / n_points - math.pi / 2
+            r = outer_r if i % 2 == 0 else inner_r
+            star.append((cx + int(r * math.cos(angle)), cy + int(r * math.sin(angle))))
+        draw.polygon(star, fill=colors[0])
+        draw.ellipse([cx - 80, cy - 80, cx + 80, cy + 80], fill=colors[3])
+
+    elif "wave" in prompt_lower or "ocean" in prompt_lower or "water" in prompt_lower:
+        # Layered waves
+        for row in range(5):
+            y_base = 150 + row * 170
+            for col in range(-1, 4):
+                wx = col * 350 + (row % 2) * 175
+                wy = y_base
+                for phase in range(3):
+                    x_off = int(40 * math.sin(row + phase * 1.5))
+                    y_off = int(20 * math.cos(col + phase))
+                    draw.ellipse([wx + x_off - 120, wy + y_off - 60, wx + x_off + 120, wy + y_off + 60],
+                                 fill=colors[(row + phase) % len(colors)])
+
+    else:
+        # Bold concentric rings with centerpiece
+        for i in range(8):
+            r = 350 - i * 40
+            draw.ellipse([cx - r, cy - r, cx + r, cy + r],
+                         fill=colors[i % len(colors)])
+        draw.ellipse([cx - 80, cy - 80, cx + 80, cy + 80], fill=colors[0])
+        for i in range(8):
+            angle = i * math.pi / 4
+            px = cx + int(200 * math.cos(angle))
+            py = cy + int(200 * math.sin(angle))
+            draw.line([(cx, cy), (px, py)], fill=colors[1], width=12)
+        for i in range(8):
+            angle = i * math.pi / 4 + math.pi / 8
+            px = cx + int(130 * math.cos(angle))
+            py = cy + int(130 * math.sin(angle))
+            draw.ellipse([px - 20, py - 20, px + 20, py + 20], fill=colors[3])
 
     return canvas
 
 
 def _run_replicate(model: str, inputs: dict) -> Image.Image:
-    """Run a Replicate model and return the result as an RGBA PIL Image."""
     output = _get_client().run(model, input=inputs)
     image_url = output[0] if isinstance(output, list) else output
     import urllib.request
@@ -120,45 +165,66 @@ def _run_replicate(model: str, inputs: dict) -> Image.Image:
     return Image.open(io.BytesIO(resp.read())).convert("RGBA")
 
 
-def generate_design_from_prompt(prompt: str) -> Image.Image:
+def generate_design_from_prompt(
+    prompt: str,
+    category: str = "",
+    style: str = "",
+) -> Image.Image:
     """
     Generate a t-shirt print design from a text prompt.
-    Tries Replicate Flux Schnell first; falls back to procedural PIL design.
 
-    Returns RGBA PIL Image with transparent background.
+    Provider chain (each fallback activates on exception):
+    1. Replicate Flux Schnell  (fast, high quality)
+    2. Hugging Face SDXL        (serverless, no GPU needed locally)
+    3. Procedural PIL fallback  (always works, vibrant output)
+
+    The raw *user* prompt is first passed through the prompt-engine so every
+    provider receives an enriched description.
     """
+    enhanced = enhance_prompt(prompt, category=category, style=style)
+    logger.info("Enhanced prompt: %s", enhanced)
+
     try:
         img = _run_replicate("black-forest-labs/flux-schnell", {
-            "prompt": f"t-shirt print design, {prompt}, flat vector illustration, high contrast, graphic design, bold lines, clean, white background",
+            "prompt": enhanced + ", clean white background",
             "num_outputs": 1,
             "num_inference_steps": 4,
             "output_format": "png",
         })
         from .remove_bg import remove_background
         return remove_background(img)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("Replicate failed for prompt=%r: %s", prompt, exc)
 
-    return _generate_fallback_design(prompt)
+    try:
+        raw_bytes = hf_generate(
+            prompt=enhanced,
+            negative_prompt=NEGATIVE_PROMPT,
+        )
+        img = Image.open(io.BytesIO(raw_bytes)).convert("RGBA")
+        from .remove_bg import remove_background
+        return remove_background(img)
+    except Exception as exc:
+        logger.warning("Hugging Face fallback also failed for prompt=%r: %s", prompt, exc)
+
+    return _generate_fallback_design(enhanced)
 
 
 def generate_design_from_prompt_and_image(prompt: str, inspiration_path: str) -> Image.Image:
     """
     Generate a t-shirt print design from a text prompt + inspiration image.
-    Uses Replicate SDXL img2img to blend the prompt with the reference image.
-
-    Returns RGBA PIL Image with transparent background.
+    Uses Replicate SDXL img2img.
     """
     try:
-        import urllib.request
+        enhanced = enhance_prompt(prompt)
         img = _run_replicate(
             "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
             {
                 "width": 1024,
                 "height": 1024,
                 "image": inspiration_path,
-                "prompt": f"t-shirt print design, {prompt}, flat vector illustration, high contrast, graphic design, bold lines, clean, white background",
-                "negative_prompt": "photo, realistic, 3d, low quality, blurry, distorted",
+                "prompt": enhanced + ", clean white background",
+                "negative_prompt": NEGATIVE_PROMPT,
                 "num_inference_steps": 30,
                 "guidance_scale": 7.5,
                 "strength": 0.7,
@@ -168,15 +234,10 @@ def generate_design_from_prompt_and_image(prompt: str, inspiration_path: str) ->
         return remove_background(img)
     except Exception:
         pass
-
-    # Fallback: just generate from text
     return generate_design_from_prompt(prompt)
 
+
 def render_mockup_scene(composited_image_url: str, mask_image_url: str, user_prompt: str) -> str:
-    """
-    Sends the composited product image and contrast mask to a remote serverless
-    GPU node to paint a custom background environment based on user descriptions.
-    """
     output = _get_client().run(
         "lucataco/sdxl-inpainting:a5b13068cc81a89a4fbeefeccc774869fcb34df4dbc92c1555e0f2771d49dde7",
         input={
@@ -188,5 +249,4 @@ def render_mockup_scene(composited_image_url: str, mask_image_url: str, user_pro
             "guidance_scale": 8.0,
         },
     )
-
     return output[0]

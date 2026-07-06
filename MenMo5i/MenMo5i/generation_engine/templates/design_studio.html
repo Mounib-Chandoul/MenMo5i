@@ -51,6 +51,17 @@
 
                 <hr class="border-neutral-900" />
 
+                <div class="space-y-2">
+                    <label class="block text-xs font-medium tracking-wide uppercase text-neutral-400">Category</label>
+                    <select name="category" class="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-3 text-sm text-neutral-200 focus:outline-none focus:border-violet-500 transition">
+                        <option value="abstract">Abstract</option>
+                        <option value="typography">Typography</option>
+                        <option value="illustration">Illustration</option>
+                        <option value="techwear">Techwear</option>
+                        <option value="minimal">Minimal</option>
+                    </select>
+                </div>
+
                 {% if user.is_authenticated and saved_prompts %}
                 <div class="space-y-2">
                     <label class="block text-xs font-medium tracking-wide uppercase text-neutral-400">Recall saved prompt</label>
