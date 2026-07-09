@@ -1,77 +1,86 @@
-from PIL import Image, ImageFilter
+"""
+Background-removal pipeline for logo images.
 
-try:
-    from rembg import remove as rembg_remove
-    HAS_REMBG = True
-except ImportError:
-    HAS_REMBG = False
+Processing always happens **in-memory** — no intermediate files touch disk.
+
+Dependencies
+------------
+    pip install rembg Pillow
+
+The first call to ``rembg`` will download the U²-Net model (~170 MB) and
+cache it under ``~/.u2net/``.
+"""
+
+from __future__ import annotations
+
+import io
+import logging
+
+from PIL import Image, ImageFilter
+from rembg import remove as rembg_remove
+
+logger = logging.getLogger(__name__)
+
+
+# ── Mandatory rembg pipeline (bytes in / bytes out) ─────────────────────
+
+
+def remove_background_bytes(image_data: bytes) -> bytes:
+    """
+    Strip the background from raw image bytes using ``rembg.remove()``.
+
+    All processing is performed strictly in-memory via ``io.BytesIO``;
+    **no intermediate file is ever written to disk**.
+
+    Parameters
+    ----------
+    image_data : bytes
+        The raw binary payload of the source image (any format Pillow can
+        open, e.g. PNG / JPEG / WebP).
+
+    Returns
+    -------
+    bytes
+        A clean transparent PNG as raw bytes, ready to be wrapped in a
+        Django ``ContentFile`` and saved to an ``ImageField``.
+
+    Raises
+    ------
+    RuntimeError
+        If rembg processing fails for any reason.
+    """
+    try:
+        input_stream = io.BytesIO(image_data)
+        output_stream = io.BytesIO()
+
+        input_stream.seek(0)
+        result_bytes = rembg_remove(input_stream.read())
+
+        result = Image.open(io.BytesIO(result_bytes)).convert("RGBA")
+        result.save(output_stream, format="PNG")
+
+        return output_stream.getvalue()
+
+    except Exception as exc:
+        logger.exception("rembg removal failed")
+        raise RuntimeError(f"Background removal failed: {exc}") from exc
+
+
+# ── Legacy PIL‑based wrappers (kept for backward compatibility) ─────────
 
 
 def remove_background(img: Image.Image) -> Image.Image:
     """
-    Remove background from a design image.
-    Uses rembg (AI-based) if available; falls back to smart PIL-based
-    white/color removal with anti-aliased edges.
+    Legacy wrapper — accepts a PIL ``Image`` and returns a PIL ``Image``
+    with a transparent background.
+
+    Internally round-trips through :func:`remove_background_bytes` for
+    consistent results.
     """
-    if HAS_REMBG:
-        return rembg_remove(img.convert("RGBA"))
-
-    return _remove_background_pil(img)
-
-
-def _remove_background_pil(img: Image.Image) -> Image.Image:
-    """
-    Smart background removal using PIL only.
-    Detects the dominant background color from edges and removes it
-    with anti-aliased transition for clean edges.
-    """
-    img = img.convert("RGBA")
-    orig = img.copy()
-
-    # Sample corner colors to detect background
-    w, h = img.size
-    corners = [
-        img.getpixel((5, 5)),
-        img.getpixel((w - 5, 5)),
-        img.getpixel((5, h - 5)),
-        img.getpixel((w - 5, h - 5)),
-    ]
-
-    # Average the corner colors as background estimate
-    bg_r = sum(c[0] for c in corners) // 4
-    bg_g = sum(c[1] for c in corners) // 4
-    bg_b = sum(c[2] for c in corners) // 4
-
-    # Create a mask: pixels close to bg color become transparent
-    gray = img.convert("L")
-    mask = Image.new("L", (w, h), 255)
-    threshold = 60
-
-    pixels = img.load()
-    mask_px = mask.load()
-
-    for y in range(h):
-        for x in range(w):
-            r, g, b, a = pixels[x, y]
-            if a == 0:
-                continue
-            dr = abs(int(r) - bg_r)
-            dg = abs(int(g) - bg_g)
-            db = abs(int(b) - bg_b)
-            dist = (dr * dr + dg * dg + db * db) ** 0.5
-            if dist < threshold:
-                # Gradual fade near the threshold for antialiasing
-                if dist < threshold - 15:
-                    alpha = 0
-                else:
-                    alpha = int(255 * (dist - (threshold - 15)) / 15)
-                mask_px[x, y] = alpha
-
-    # Blur the mask slightly for smooth edges
-    mask = mask.filter(ImageFilter.GaussianBlur(radius=1.5))
-    orig.putalpha(mask)
-
-    return orig
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    cleaned = remove_background_bytes(buf.getvalue())
+    return Image.open(io.BytesIO(cleaned)).convert("RGBA")
 
 
 def add_shadow(design: Image.Image, offset=(8, 12), blur_radius=12, opacity=0.35) -> Image.Image:

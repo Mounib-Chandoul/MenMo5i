@@ -171,29 +171,57 @@ def design_view(request):
             output_name = f"render_{uuid.uuid4().hex}.png"
             output_path = output_dir / output_name
             composited.save(output_path)
+            render_rel_path = f"renders/{output_name}"
 
-            session = DesignSession.objects.create(
-                user=request.user,
-                raw_prompt=user_prompt,
-                category=category,
-                is_public=True,
-                status='Generated',
-            )
+            context['status'] = 'success'
+            context['result_image_url'] = settings.MEDIA_URL + render_rel_path
+            context['design_url'] = settings.MEDIA_URL + design_rel_path
+            context['design_path'] = design_rel_path
+            context['render_path'] = render_rel_path
+            context['prompt_used'] = user_prompt
+            context['category'] = category
+            context['has_background'] = '1' if has_background else '0'
 
-            art = GeneratedArt.objects.create(
-                session=session,
-                design_image=f"renders/{output_name}",
-                transparent_png_url='',
-            )
-
-            messages.success(request, "Design generated successfully!")
-            return redirect('design_detail', session_id=session.id)
+            messages.success(request, "Design generated! Click Save to keep it.")
+            return render(request, 'design_studio.html', context)
 
         except Exception as exc:
             messages.error(request, f"Render failed: {exc}")
             return render(request, 'design_studio.html', context)
 
     return render(request, 'design_studio.html', context)
+
+
+@login_required
+@require_POST
+def save_design_view(request):
+    design_path = request.POST.get('design_path', '').strip()
+    render_path = request.POST.get('render_path', '').strip()
+    prompt = request.POST.get('prompt', '').strip()
+    category_raw = (request.POST.get('category') or DesignSession.Category.ABSTRACT).strip().lower()
+    category_values = {c[0] for c in DesignSession.Category.choices}
+    category = category_raw if category_raw in category_values else DesignSession.Category.ABSTRACT
+
+    if not design_path or not prompt:
+        messages.error(request, "Missing design data. Please generate a design first.")
+        return redirect('generation_engine:design')
+
+    session = DesignSession.objects.create(
+        user=request.user,
+        raw_prompt=prompt,
+        category=category,
+        is_public=True,
+        status='Generated',
+    )
+
+    GeneratedArt.objects.create(
+        session=session,
+        design_image=design_path,
+        transparent_png_url='',
+    )
+
+    messages.success(request, "Design saved successfully!")
+    return redirect('design_detail', session_id=session.id)
 
 
 @login_required

@@ -175,7 +175,7 @@ def remix_design_view(request, session_id):
             )
             GeneratedArt.objects.create(
                 session=new_session,
-                design_image=f"renders/{output_name}",
+                design_image=design_rel_path,
                 transparent_png_url='',
             )
             messages.success(request, 'Remix created successfully!')
@@ -243,7 +243,7 @@ def variations_view(request, session_id):
                 )
                 new_art = GeneratedArt.objects.create(
                     session=new_session,
-                    design_image=f"renders/{out_name}",
+                    design_image=design_path,
                     transparent_png_url='',
                 )
                 return new_session

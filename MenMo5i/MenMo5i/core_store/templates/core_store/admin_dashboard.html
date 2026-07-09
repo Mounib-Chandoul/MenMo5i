@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-neutral-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MenMo5i — Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-display { font-family: 'Space Grotesk', sans-serif; }
+        .sidebar-link { transition: all 0.15s ease; }
+        .stat-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        .bar { transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+    </style>
+</head>
+<body class="h-full flex">
+
+    <!-- ── Sidebar ──────────────────────────────────────────── -->
+    <aside class="w-64 bg-neutral-950 border-r border-neutral-900 flex flex-col h-screen sticky top-0 shrink-0">
+        <div class="px-6 py-5 border-b border-neutral-900">
+            <div class="flex items-center gap-2">
+                <span class="font-display text-xl font-bold tracking-wider text-violet-500">MenMo5i</span>
+                <span class="text-[10px] bg-violet-500/10 text-violet-400 px-2 py-0.5 rounded border border-violet-500/20 uppercase tracking-wider font-semibold">Admin</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Dashboard
+            </a>
+            <a href="{% url 'admin:index' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900/60">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Django Admin
+            </a>
+            <a href="{% url 'design' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900/60">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 002-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                Design Studio
+            </a>
+            <a href="{% url 'order_history' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900/60">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                Orders
+            </a>
+            <a href="{% url 'my_designs' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900/60">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                My Designs
+            </a>
+        </nav>
+
+        <div class="px-4 py-4 border-t border-neutral-900">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center text-xs font-bold text-violet-400 border border-violet-500/30">{{ user.username|first|upper }}</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-neutral-200 truncate">{{ user.username }}</p>
+                    <p class="text-[11px] text-neutral-500 truncate">{{ user.email }}</p>
+                </div>
+                <a href="{% url 'logout' %}" class="text-neutral-500 hover:text-red-400 transition" title="Logout">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ── Main Content ─────────────────────────────────────── -->
+    <main class="flex-1 min-h-screen overflow-y-auto bg-neutral-950">
+        
+        <!-- Top bar -->
+        <header class="sticky top-0 z-40 bg-neutral-950/80 backdrop-blur border-b border-neutral-900 px-8 py-4 flex items-center justify-between">
+            <div>
+                <h1 class="font-display text-xl font-bold text-white">Dashboard</h1>
+                <p class="text-xs text-neutral-500 mt-0.5">Overview of your store and community metrics</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-neutral-500">{{ now|date:"l, F j, Y" }}</span>
+                <div class="h-4 w-px bg-neutral-800"></div>
+                <span class="text-xs font-mono text-neutral-400">{{ now|time:"H:i" }}</span>
+            </div>
+        </header>
+
+        <div class="p-8 space-y-8 max-w-[1600px]">
+
+            <!-- ── Stats Cards ────────────────────────────────── -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- Users -->
+                <div class="stat-card bg-neutral-900/50 border border-neutral-800 rounded-2xl p-5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-violet-500/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    <div class="relative">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-medium uppercase tracking-wider text-neutral-500">Total Users</span>
+                            <span class="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
+                                <svg class="w-4 h-4 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/></svg>
+                            </span>
+                        </div>
+                        <p class="font-display text-3xl font-bold text-white">{{ total_users }}</p>
+                        <p class="text-xs text-neutral-500 mt-1">+{{ new_users_30d }} in last 30 days</p>
+                    </div>
+                </div>
+
+                <!-- Designs -->
+                <div class="stat-card bg-neutral-900/50 border border-neutral-800 rounded-2xl p-5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    <div class="relative">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-medium uppercase tracking-wider text-neutral-500">Total Designs</span>
+                            <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 002-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            </span>
+                        </div>
+                        <p class="font-display text-3xl font-bold text-white">{{ total_designs }}</p>
+                        <p class="text-xs text-neutral-500 mt-1">+{{ designs_30d }} in last 30 days</p>
+                    </div>
+                </div>
+
+                <!-- Orders -->
+                <div class="stat-card bg-neutral-900/50 border border-neutral-800 rounded-2xl p-5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    <div class="relative">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-medium uppercase tracking-wider text-neutral-500">Total Orders</span>
+                            <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                                <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                            </span>
+                        </div>
+                        <p class="font-display text-3xl font-bold text-white">{{ total_orders }}</p>
+                        <p class="text-xs text-neutral-500 mt-1">+{{ orders_30d }} in last 30 days</p>
+                    </div>
+                </div>
+
+                <!-- Revenue -->
+                <div class="stat-card bg-neutral-900/50 border border-neutral-800 rounded-2xl p-5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    <div class="relative">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-medium uppercase tracking-wider text-neutral-500">Revenue</span>
+                            <span class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
+                                <svg class="w-4 h-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </span>
+                        </div>
+                        <p class="font-display text-3xl font-bold text-white">{{ revenue|floatformat:2 }} TND</p>
+                        <p class="text-xs text-neutral-500 mt-1">{{ revenue_30d|floatformat:2 }} TND in 30 days</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Two-column: Recent Orders + Revenue Chart ──── -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Recent Orders -->
+                <div class="lg:col-span-2 bg-neutral-900/30 border border-neutral-800 rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-display text-sm font-bold text-white tracking-wide">Recent Orders</h2>
+                        <a href="{% url 'order_history' %}" class="text-xs text-violet-400 hover:underline">View all</a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-xs text-neutral-500 uppercase tracking-wider border-b border-neutral-800">
+                                    <th class="text-left pb-3 font-medium">Order</th>
+                                    <th class="text-left pb-3 font-medium">Customer</th>
+                                    <th class="text-left pb-3 font-medium">Items</th>
+                                    <th class="text-left pb-3 font-medium">Total</th>
+                                    <th class="text-left pb-3 font-medium">Status</th>
+                                    <th class="text-right pb-3 font-medium">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr class="border-b border-neutral-900 hover:bg-neutral-900/40 transition">
+                                    <td class="py-3 font-mono text-xs text-neutral-300">#{{ order.id }}</td>
+                                    <td class="py-3 text-neutral-300">{{ order.user.username }}</td>
+                                    <td class="py-3 text-neutral-400">{{ order.items.count }}</td>
+                                    <td class="py-3 text-neutral-300">{{ order.total|floatformat:2 }} TND</td>
+                                    <td class="py-3">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium 
+                                            {% if order.status == 'delivered' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                                            {% elif order.status == 'shipped' %}bg-blue-500/10 text-blue-400 border border-blue-500/20
+                                            {% elif order.status == 'confirmed' %}bg-amber-500/10 text-amber-400 border border-amber-500/20
+                                            {% elif order.status == 'cancelled' %}bg-red-500/10 text-red-400 border border-red-500/20
+                                            {% else %}bg-neutral-500/10 text-neutral-400 border border-neutral-500/20{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 text-right text-xs text-neutral-500">{{ order.created_at|date:"M j, H:i" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="6" class="py-8 text-center text-neutral-500 text-sm">No orders yet.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Monthly Revenue Chart -->
+                <div class="bg-neutral-900/30 border border-neutral-800 rounded-2xl p-5">
+                    <h2 class="font-display text-sm font-bold text-white tracking-wide mb-4">Monthly Revenue</h2>
+                    <div class="flex items-end justify-between gap-1.5 h-40 pt-2">
+                        {% for rev in chart_revs %}
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <span class="text-[10px] text-neutral-500 font-mono">{{ rev|floatformat:0 }}</span>
+                            <div class="w-full bg-neutral-800 rounded-t-md relative" style="height: 100%;">
+                                <div class="bar absolute bottom-0 w-full rounded-t-md bg-gradient-to-t from-violet-600 to-violet-400" style="height: {% if chart_max > 0 %}{{ rev|floatformat:0|divisibleby:chart_max|yesno:',' }}{% endif %}{% widthratio rev chart_max 100 %}%;"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="flex justify-between mt-2">
+                        {% for month in chart_months %}
+                        <span class="text-[9px] text-neutral-600 font-mono {% if forloop.counter|divisibleby:3 %}text-neutral-500{% endif %}">{{ month|slice:":3" }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Two-column: Recent Designs + Category Distribution ── -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Recent Designs -->
+                <div class="lg:col-span-2 bg-neutral-900/30 border border-neutral-800 rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-display text-sm font-bold text-white tracking-wide">Recent Designs</h2>
+                        <a href="{% url 'my_designs' %}" class="text-xs text-violet-400 hover:underline">View all</a>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {% for art in recent_designs %}
+                        <a href="{% url 'design_detail' session_id=art.session.id %}" class="group block bg-neutral-950 border border-neutral-800 rounded-xl overflow-hidden hover:border-violet-500/50 transition">
+                            <div class="aspect-square bg-neutral-900 flex items-center justify-center overflow-hidden">
+                                {% if art.image_url %}
+                                <img src="{{ art.image_url }}" alt="Design" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                                {% else %}
+                                <svg class="w-8 h-8 text-neutral-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 002-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                {% endif %}
+                            </div>
+                            <div class="p-2.5">
+                                <p class="text-[11px] text-neutral-300 truncate">{{ art.session.raw_prompt|truncatechars:40 }}</p>
+                                <p class="text-[10px] text-neutral-600 mt-0.5">{{ art.session.user.username }} · {{ art.session.created_at|date:"M j" }}</p>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <div class="col-span-full py-8 text-center text-neutral-500 text-sm">No designs yet.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Category Distribution -->
+                <div class="bg-neutral-900/30 border border-neutral-800 rounded-2xl p-5">
+                    <h2 class="font-display text-sm font-bold text-white tracking-wide mb-4">Design Categories</h2>
+                    <div class="space-y-3">
+                        {% for cat in category_data %}
+                        <div>
+                            <div class="flex items-center justify-between text-sm mb-1">
+                                <span class="text-neutral-300">{{ cat.label }}</span>
+                                <span class="text-xs text-neutral-500 font-mono">{{ cat.count }}</span>
+                            </div>
+                            <div class="w-full h-2 bg-neutral-800 rounded-full overflow-hidden">
+                                {% widthratio cat.count total_designs 100 as pct %}
+                                <div class="h-full rounded-full bg-gradient-to-r from-violet-600 to-violet-400" style="width: {{ pct }}%;"></div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-neutral-500">No categories yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Two-column: Latest Users + Most Liked ────── -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- Latest Users -->
+                <div class="bg-neutral-900/30 border border-neutral-800 rounded-2xl p-5">
+                    <h2 class="font-display text-sm font-bold text-white tracking-wide mb-4">Latest Users</h2>
+                    <div class="space-y-2">
+                        {% for u in latest_users %}
+                        <div class="flex items-center gap-3 py-2 border-b border-neutral-900 last:border-0">
+                            <div class="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center text-xs font-bold text-violet-400 border border-violet-500/20 shrink-0">{{ u.username|first|upper }}</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-neutral-200 truncate">{{ u.username }}</p>
+                                <p class="text-xs text-neutral-500 truncate">{{ u.email }}</p>
+                            </div>
+                            <span class="text-[11px] text-neutral-600">{{ u.date_joined|date:"M j, Y" }}</span>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-neutral-500">No users yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Most Liked Designs -->
+                <div class="bg-neutral-900/30 border border-neutral-800 rounded-2xl p-5">
+                    <h2 class="font-display text-sm font-bold text-white tracking-wide mb-4">Most Liked Designs</h2>
+                    <div class="space-y-2">
+                        {% for art in top_liked %}
+                        <a href="{% url 'design_detail' session_id=art.session.id %}" class="flex items-center gap-3 py-2 border-b border-neutral-900 last:border-0 hover:bg-neutral-900/40 transition rounded-lg px-2 -mx-2">
+                            <div class="w-12 h-12 rounded-lg bg-neutral-900 border border-neutral-800 overflow-hidden shrink-0 flex items-center justify-center">
+                                {% if art.image_url %}
+                                <img src="{{ art.image_url }}" alt="" class="w-full h-full object-contain">
+                                {% else %}
+                                <svg class="w-5 h-5 text-neutral-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 002-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-neutral-200 truncate">{{ art.session.raw_prompt|truncatechars:45 }}</p>
+                                <p class="text-xs text-neutral-500">{{ art.session.user.username }}</p>
+                            </div>
+                            <div class="flex items-center gap-1 text-rose-400">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                <span class="text-xs font-mono">{{ art.like_count }}</span>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <p class="text-sm text-neutral-500">No liked designs yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Order Status Summary ──────────────────────── -->
+            <div class="bg-neutral-900/30 border border-neutral-800 rounded-2xl p-5">
+                <h2 class="font-display text-sm font-bold text-white tracking-wide mb-4">Order Status Overview</h2>
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                    {% for status, count in orders_by_status.items %}
+                    <div class="text-center bg-neutral-950 border border-neutral-800 rounded-xl p-4">
+                        <p class="font-display text-2xl font-bold 
+                            {% if status == 'delivered' %}text-emerald-400
+                            {% elif status == 'shipped' %}text-blue-400
+                            {% elif status == 'confirmed' %}text-amber-400
+                            {% elif status == 'cancelled' %}text-red-400
+                            {% else %}text-neutral-400{% endif %}">
+                            {{ count }}
+                        </p>
+                        <p class="text-[11px] text-neutral-500 mt-1 capitalize">{{ status }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-full text-center text-sm text-neutral-500 py-4">No orders.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>

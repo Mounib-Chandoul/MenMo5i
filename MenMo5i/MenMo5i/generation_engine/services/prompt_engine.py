@@ -1,18 +1,55 @@
 import re
 
 QUALITY_TAGS = [
-    "flat vector illustration",
-    "bold graphic lines",
-    "high contrast",
-    "clean composition",
-    "t-shirt print design",
+    "bold graphic illustration, 8K resolution, ultra high detail",
+    "t-shirt print design, highly detailed, crisp sharp lines",
+    "clean sharp edges, high contrast, photorealistic rendering",
+    "well composed, centered focal point, print ready",
+    "vibrant colors, no artifacts, smooth gradients",
 ]
+
+GEMINI_QUALITY_INSTRUCTION = (
+    " Create a high-resolution t-shirt graphic. "
+    "No text, no signatures, no watermarks, no borders. "
+    "Sharp edges, no blur, no noise, no artifacts. "
+    "Centered subject, transparent background suitable for apparel."
+)
 
 NEGATIVE_PROMPT = (
     "photo, realistic, 3d render, low quality, blurry, distorted, deformed, "
     "ugly, bad anatomy, watermark, text, signature, frame, border, "
     "complex background, messy, noisy, grainy, oversaturated, undersaturated"
 )
+
+# ── Logo-optimised prompt injection ──────────────────────────────────────
+# These keywords are appended to the user's raw prompt so the model
+# generates a clean, isolated logo-like subject on a flat backdrop —
+# making the subsequent rembg pass far more reliable.
+
+LOGO_DESIGN_INJECTION = (
+    "vector logo, clean flat design, solid white background, "
+    "minimal vector graphic, streetwear brand emblem, "
+    "centered, sharp edges, high contrast"
+)
+
+LOGO_NEGATIVE_PROMPT = (
+    "shadows, realistic details, 3d render, photo, photograph, "
+    "grain, noise, blur, gradient background, complex background, "
+    "watermark, text, signature, frame, border, "
+    "low quality, distorted, deformed, ugly, bad anatomy, "
+    "messy, cluttered, oversaturated, undersaturated"
+)
+
+
+def build_logo_prompt(user_prompt: str) -> str:
+    """
+    Wrap the user's raw text with structural styling keywords optimised
+    for clean vector-logo generation against a solid white backdrop.
+
+    The injection is appended *after* the user's input so the model still
+    honours the original intent while being guided toward a logo aesthetic.
+    """
+    return f"{user_prompt}, {LOGO_DESIGN_INJECTION}"
 
 THEME_EXPANSIONS = {
     "skull": "intricate sugar skull with ornate floral details, mexican da de muertos style",
@@ -158,4 +195,6 @@ def enhance_prompt(
 
     parts.extend(QUALITY_TAGS)
 
-    return ", ".join(parts)
+    result = ", ".join(parts)
+    result += GEMINI_QUALITY_INSTRUCTION
+    return result

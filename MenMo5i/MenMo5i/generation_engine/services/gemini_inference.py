@@ -8,25 +8,40 @@ from PIL import Image
 
 logger = logging.getLogger(__name__)
 
-GEMINI_MODEL = "gemini-2.0-flash-exp"
+GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_API_URL = (
     f"https://generativelanguage.googleapis.com/v1beta/models/"
     f"{GEMINI_MODEL}:generateContent"
 )
 
 
-def generate_image(prompt: str) -> bytes:
-    """Generate an image via Gemini 2.0 Flash (experimental image output)."""
+def generate_image(prompt: str, image_path: str | None = None) -> bytes:
+    """Generate an image via Gemini 2.0 Flash.
+
+    If *image_path* is provided it is sent alongside the text prompt as a
+    multimodal (image-to-image) request.
+    """
     api_key = getattr(settings, "GEMINI_API_KEY", "")
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY not configured in settings / .env")
 
     url = f"{GEMINI_API_URL}?key={api_key}"
 
+    parts = [{"text": prompt}]
+    if image_path:
+        with open(image_path, "rb") as f:
+            raw = f.read()
+        ext = image_path.rsplit(".", 1)[-1].lower()
+        mime = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg", "webp": "image/webp"}.get(ext, "image/png")
+        parts.append({
+            "inlineData": {
+                "mimeType": mime,
+                "data": base64.b64encode(raw).decode(),
+            },
+        })
+
     payload = {
-        "contents": [{
-            "parts": [{"text": prompt}],
-        }],
+        "contents": [{"parts": parts}],
         "generationConfig": {
             "temperature": 1.0,
             "topP": 0.95,

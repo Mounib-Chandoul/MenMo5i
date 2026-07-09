@@ -1,19 +1,26 @@
 import io
 import logging
-import math
 import os
 import random
 
 import replicate
 from django.conf import settings
-from PIL import Image, ImageDraw
+from PIL import Image
 
 from .gemini_inference import generate_image as gemini_generate
-from .hf_inference import generate_image_from_prompt as hf_generate
 from .pollinations_inference import generate_image as pollinations_generate
-from .prompt_engine import enhance_prompt, NEGATIVE_PROMPT
+from .prompt_engine import enhance_prompt
 
 logger = logging.getLogger(__name__)
+
+TARGET_SIZE = (2048, 2048)
+
+
+def _upscale(img: Image.Image) -> Image.Image:
+    """Upscale image to TARGET_SIZE using high-quality LANCZOS resampling."""
+    if img.size == TARGET_SIZE:
+        return img
+    return img.resize(TARGET_SIZE, Image.LANCZOS)
 
 
 def _get_client():
@@ -24,7 +31,15 @@ def _get_client():
 
 
 def _generate_fallback_design(prompt: str, has_background: bool = False) -> Image.Image:
-    """Generate a vibrant, fully-opaque geometric T-shirt design."""
+    """
+    Last-resort procedural design when all AI backends are unavailable.
+
+    Instead of drawing random geometric shapes that have nothing to do with
+    the prompt, this renders a bold text-banner t-shirt design using the
+    prompt text itself as the primary visual element.
+    """
+    from PIL import ImageDraw, ImageFont
+
     W, H = 1024, 1024
     bg_color = (255, 255, 255, 255) if has_background else (0, 0, 0, 0)
     canvas = Image.new("RGBA", (W, H), bg_color)
@@ -33,129 +48,91 @@ def _generate_fallback_design(prompt: str, has_background: bool = False) -> Imag
     prompt_lower = prompt.lower()
     rng = random.Random(hash(prompt) & 0xFFFFFFFF)
 
+    # Pick a colour palette from the prompt
     palettes = {
-        "violet": [(130, 80, 245), (100, 50, 230), (170, 140, 250), (200, 180, 255)],
-        "purple": [(150, 50, 235), (170, 85, 250), (195, 135, 255), (220, 185, 255)],
-        "cyan":   [(0, 185, 215), (35, 215, 240), (105, 235, 250), (170, 245, 255)],
-        "green":  [(35, 200, 95), (75, 225, 130), (140, 245, 175), (190, 250, 210)],
-        "red":    [(240, 70, 70), (250, 115, 115), (255, 170, 170), (255, 205, 205)],
-        "blue":   [(60, 130, 250), (100, 170, 255), (150, 200, 255), (195, 220, 255)],
-        "orange": [(255, 150, 60), (255, 195, 40), (255, 235, 140), (255, 245, 200)],
-        "neon":   [(255, 0, 255), (0, 255, 255), (255, 255, 0), (255, 0, 128)],
+        "violet": [(130, 80, 245), (100, 50, 230)],
+        "purple": [(150, 50, 235), (170, 85, 250)],
+        "cyan":   [(0, 185, 215), (35, 215, 240)],
+        "green":  [(35, 200, 95), (75, 225, 130)],
+        "red":    [(240, 70, 70), (250, 115, 115)],
+        "blue":   [(60, 130, 250), (100, 170, 255)],
+        "orange": [(255, 150, 60), (255, 195, 40)],
+        "neon":   [(255, 0, 255), (0, 255, 255)],
     }
-
     color_key = "violet"
     for k in palettes:
         if k in prompt_lower:
             color_key = k
             break
-    colors = palettes[color_key]
-    # Fully opaque
-    colors = [c + (255,) for c in colors]
+    primary = palettes[color_key][0] + (255,)
+    accent = palettes[color_key][1] + (255,)
+    white = (255, 255, 255, 255)
 
     cx, cy = W // 2, H // 2
 
-    if "skull" in prompt_lower or "death" in prompt_lower or "dark" in prompt_lower:
-        # Bold skull-like abstract
-        r = 240
-        draw.ellipse([cx - r, cy - r - 80, cx + r, cy + r - 80], fill=colors[0])
-        draw.ellipse([cx - 100, cy - 120, cx - 40, cy - 30], fill=colors[1])
-        draw.ellipse([cx + 40, cy - 120, cx + 100, cy - 30], fill=colors[1])
-        draw.arc([cx - 130, cy + 30, cx + 130, cy + 160], 0, 180, fill=colors[2], width=18)
-        for i in range(-4, 5):
-            tx = cx + i * 28
-            draw.rectangle([tx - 10, cy + 90, tx + 10, cy + 130], fill=colors[3])
+    # Background accent shape
+    for i in range(3):
+        r = 400 - i * 120
+        draw.rounded_rectangle(
+            [cx - r, cy - r, cx + r, cy + r],
+            radius=60, fill=(*palettes[color_key][0], 30 + i * 20),
+        )
 
-    elif "flower" in prompt_lower or "nature" in prompt_lower or "plant" in prompt_lower or "rose" in prompt_lower or "lotus" in prompt_lower:
-        # Layered flower
-        for i in range(8):
-            angle = i * math.pi / 4
-            px = cx + int(140 * math.cos(angle))
-            py = cy + int(140 * math.sin(angle))
-            draw.ellipse([px - 70, py - 70, px + 70, py + 70], fill=colors[i % len(colors)])
-        draw.ellipse([cx - 60, cy - 60, cx + 60, cy + 60], fill=colors[0])
+    # Extract a short label from the prompt
+    label = prompt.strip().strip(",").strip()
+    # Truncate to first ~20 chars for the display
+    if len(label) > 24:
+        label = label[:24] + "…"
 
-    elif "geometric" in prompt_lower or "pattern" in prompt_lower or "mandala" in prompt_lower:
-        # Rich geometric mandala
-        for ring in range(6):
-            r = 60 + ring * 70
-            n = 8 + ring * 4
-            for i in range(n):
-                angle = i * (2 * math.pi / n) + ring * 0.2
-                px = cx + int(r * math.cos(angle))
-                py = cy + int(r * math.sin(angle))
-                size = 60 - ring * 6
-                draw.ellipse([px - size, py - size, px + size, py + size],
-                             fill=colors[ring % len(colors)])
-        draw.ellipse([cx - 30, cy - 30, cx + 30, cy + 30], fill=colors[0])
+    # Try to load a bold font, fall back to default
+    font_size = 100
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
+    except (OSError, IOError):
+        try:
+            font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans-Bold.ttf", font_size)
+        except (OSError, IOError):
+            font = ImageFont.load_default()
 
-    elif "abstract" in prompt_lower:
-        # Bold overlapping circles
-        for i in range(6):
-            angle = i * math.pi / 3
-            offset = 90
-            px = cx + int(offset * math.cos(angle))
-            py = cy + int(offset * math.sin(angle))
-            r = 160 - i * 15
-            draw.ellipse([px - r, py - r, px + r, py + r], fill=colors[i % len(colors)])
+    # Measure text using getbbox
+    bbox = draw.textbbox((0, 0), label, font=font)
+    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
 
-    elif "tribal" in prompt_lower or "cyberpunk" in prompt_lower or "neon" in prompt_lower:
-        # Bold angular tribal
-        points = []
-        for i in range(12):
-            angle = i * math.pi / 6
-            r = 300 if i % 2 == 0 else 150
-            points.append((cx + int(r * math.cos(angle)), cy + int(r * math.sin(angle))))
-        draw.polygon(points, fill=colors[0])
-        for i in range(8):
-            angle = i * math.pi / 4
-            px = cx + int(200 * math.cos(angle))
-            py = cy + int(200 * math.sin(angle))
-            draw.ellipse([px - 50, py - 50, px + 50, py + 50], fill=colors[1])
+    # Shrink font until it fits
+    while tw > W - 120 and font_size > 20:
+        font_size -= 10
+        try:
+            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
+        except (OSError, IOError):
+            try:
+                font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans-Bold.ttf", font_size)
+            except (OSError, IOError):
+                pass
+        bbox = draw.textbbox((0, 0), label, font=font)
+        tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
 
-    elif "star" in prompt_lower or "sun" in prompt_lower or "moon" in prompt_lower or "space" in prompt_lower:
-        # Star/sun burst
-        outer_r = 350
-        inner_r = 120
-        n_points = 24
-        star = []
-        for i in range(n_points * 2):
-            angle = i * math.pi / n_points - math.pi / 2
-            r = outer_r if i % 2 == 0 else inner_r
-            star.append((cx + int(r * math.cos(angle)), cy + int(r * math.sin(angle))))
-        draw.polygon(star, fill=colors[0])
-        draw.ellipse([cx - 80, cy - 80, cx + 80, cy + 80], fill=colors[3])
+    # Draw main text with shadow
+    tx = (W - tw) // 2
+    ty = (H - th) // 2 - 60
+    draw.text((tx + 4, ty + 4), label, fill=(0, 0, 0, 180), font=font)
+    draw.text((tx, ty), label, fill=primary, font=font)
 
-    elif "wave" in prompt_lower or "ocean" in prompt_lower or "water" in prompt_lower:
-        # Layered waves
-        for row in range(5):
-            y_base = 150 + row * 170
-            for col in range(-1, 4):
-                wx = col * 350 + (row % 2) * 175
-                wy = y_base
-                for phase in range(3):
-                    x_off = int(40 * math.sin(row + phase * 1.5))
-                    y_off = int(20 * math.cos(col + phase))
-                    draw.ellipse([wx + x_off - 120, wy + y_off - 60, wx + x_off + 120, wy + y_off + 60],
-                                 fill=colors[(row + phase) % len(colors)])
+    # Decorative underline
+    underline_y = ty + th + 20
+    draw.rounded_rectangle(
+        [cx - tw // 2 - 20, underline_y, cx + tw // 2 + 20, underline_y + 8],
+        radius=4, fill=accent,
+    )
 
-    else:
-        # Bold concentric rings with centerpiece
-        for i in range(8):
-            r = 350 - i * 40
-            draw.ellipse([cx - r, cy - r, cx + r, cy + r],
-                         fill=colors[i % len(colors)])
-        draw.ellipse([cx - 80, cy - 80, cx + 80, cy + 80], fill=colors[0])
-        for i in range(8):
-            angle = i * math.pi / 4
-            px = cx + int(200 * math.cos(angle))
-            py = cy + int(200 * math.sin(angle))
-            draw.line([(cx, cy), (px, py)], fill=colors[1], width=12)
-        for i in range(8):
-            angle = i * math.pi / 4 + math.pi / 8
-            px = cx + int(130 * math.cos(angle))
-            py = cy + int(130 * math.sin(angle))
-            draw.ellipse([px - 20, py - 20, px + 20, py + 20], fill=colors[3])
+    # Sub-label with category/quality tag
+    tag = "T-SHIRT DESIGN"
+    try:
+        small_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 36)
+    except (OSError, IOError):
+        small_font = ImageFont.load_default()
+    bbox2 = draw.textbbox((0, 0), tag, font=small_font)
+    stw = bbox2[2] - bbox2[0]
+    draw.text(((W - stw) // 2, underline_y + 30), tag, fill=accent, font=small_font)
 
     return canvas
 
@@ -178,11 +155,9 @@ def generate_design_from_prompt(
     Generate a t-shirt print design from a text prompt.
 
     Provider chain (each fallback activates on exception):
-    1. Replicate Flux Schnell  (fast, high quality)
-    2. Gemini 2.0 Flash         (free, modern)
-    3. Hugging Face SDXL        (serverless, free tier)
-    4. Pollinations.ai          (free, no token)
-    5. Procedural PIL fallback  (always works)
+    1. Gemini 2.0 Flash         (free, modern — requires API key)
+    2. Pollinations.ai          (free, no token)
+    3. Procedural PIL fallback  (always works — text-based, no rings)
 
     When ``has_background=False`` (default) the result has a transparent
     background suitable for compositing onto a shirt.
@@ -190,76 +165,46 @@ def generate_design_from_prompt(
     enhanced = enhance_prompt(prompt, category=category, style=style)
     logger.info("Enhanced prompt: %s", enhanced)
 
-    background_tag = ", clean white background" if has_background else ""
-
     def _remove_bg(img: Image.Image) -> Image.Image:
         if has_background:
             return img
         from .remove_bg import remove_background
         return remove_background(img)
 
-    try:
-        img = _run_replicate("black-forest-labs/flux-schnell", {
-            "prompt": enhanced + background_tag,
-            "num_outputs": 1,
-            "num_inference_steps": 4,
-            "output_format": "png",
-        })
-        return _remove_bg(img)
-    except Exception as exc:
-        logger.warning("Replicate failed for prompt=%r: %s", prompt, exc)
-
+    # 1 — Gemini 2.0 Flash (primary)
     try:
         raw_bytes = gemini_generate(enhanced)
         img = Image.open(io.BytesIO(raw_bytes)).convert("RGBA")
+        img = _upscale(img)
         return _remove_bg(img)
     except Exception as exc:
-        logger.warning("Gemini fallback failed for prompt=%r: %s", prompt, exc)
+        logger.warning("Gemini failed for prompt=%r: %s", prompt, exc)
 
-    try:
-        raw_bytes = hf_generate(
-            prompt=enhanced,
-            negative_prompt=NEGATIVE_PROMPT,
-        )
-        img = Image.open(io.BytesIO(raw_bytes)).convert("RGBA")
-        return _remove_bg(img)
-    except Exception as exc:
-        logger.warning("Hugging Face fallback also failed for prompt=%r: %s", prompt, exc)
-
+    # 2 — Pollinations (free, no API key needed)
     try:
         raw_bytes = pollinations_generate(enhanced)
         img = Image.open(io.BytesIO(raw_bytes)).convert("RGBA")
         return _remove_bg(img)
     except Exception as exc:
-        logger.warning("Pollinations fallback also failed for prompt=%r: %s", prompt, exc)
+        logger.warning("Pollinations fallback failed for prompt=%r: %s", prompt, exc)
 
+    # 3 — Procedural PIL fallback (text banner)
     return _generate_fallback_design(enhanced, has_background=has_background)
 
 
 def generate_design_from_prompt_and_image(prompt: str, inspiration_path: str) -> Image.Image:
     """
     Generate a t-shirt print design from a text prompt + inspiration image.
-    Uses Replicate SDXL img2img.
+    Uses Gemini 2.0 Flash multimodal (image + text input).
     """
     try:
         enhanced = enhance_prompt(prompt)
-        img = _run_replicate(
-            "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
-            {
-                "width": 1024,
-                "height": 1024,
-                "image": inspiration_path,
-                "prompt": enhanced,
-                "negative_prompt": NEGATIVE_PROMPT,
-                "num_inference_steps": 30,
-                "guidance_scale": 7.5,
-                "strength": 0.7,
-            },
-        )
+        raw_bytes = gemini_generate(enhanced, image_path=inspiration_path)
+        img = Image.open(io.BytesIO(raw_bytes)).convert("RGBA")
         from .remove_bg import remove_background
         return remove_background(img)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("Gemini img2img failed for prompt=%r: %s", prompt, exc)
     return generate_design_from_prompt(prompt)
 
 
