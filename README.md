@@ -1,110 +1,108 @@
-# ⚡ MENMO5I // Premium North African Streetwear Syndicate
+# ⚡ MenMo5i
 
-MenMo5i (من مخي — *"From My Mind"*) is an avant-garde, tech-driven SaaS marketplace and digital syndicate born out of the concrete geometries of North Africa. The platform mutates traditional streetwear retail by blending hyper-premium, exclusive physical fashion drops with a decentralized, community-driven AI design submission system. 
+<div align="center">
 
-Built with a hardware-accelerated minimalist cyberpunk frontend and a robust asynchronous Django core engine.
+[![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Status](https://img.shields.io/badge/Status-Concept%20%2F%20In%20Progress-7DCFFF?style=for-the-badge)](https://github.com/Mounib-Chandoul/MenMo5i)
 
----
+</div>
 
-## 🛠️ Tech Stack & System Architecture
+> **من مخي** — *"From My Mind"*
 
-* **Backend Matrix:** Django 5.x / Python 3.12
-* **Asynchronous Task Workers:** Celery / Redis (Optimized for media handling & data-scrapes)
-* **Database Shell:** PostgreSQL (Production) / SQLite3 (Local development)
-* **Frontend Design Layer:** Tailwind CSS / Native Hardware-Accelerated JavaScript
-* **Authentication Engine:** Django Native Sessions (`django.contrib.auth`)
+MenMo5i is a product concept and engineering blueprint for a North African
+streetwear marketplace. It brings limited physical drops together with a
+community-curated, AI-assisted design pipeline: members submit mockups, the
+community votes, and the winners become real products.
 
----
-
-## 🕹️ Key Features
-
-### 1. The Core UX Layer
-* **Parallax Camera Rig:** Fluid background parallax engine completely calculated using `translate3d` to bypass main-thread layout reflows and eliminate jitter.
-* **Dynamic Content Pinning:** A 300vh scroll-pinned section that scrubs beautifully through item specifications, matching frame layouts dynamically with metadata.
-* **Interactive Dynamic Cursor:** High-performance DOM-decoupled ambient pointer with fluid easing metrics (`mix-blend-mode: difference`).
-
-### 2. Autonomous Authentication Portal
-* Complete guest-to-member layout mutations.
-* Secure token-isolated login, user onboarding registration, and secure background session termination.
-
-### 3. AI Design Mutation Pipeline *(In Progress)*
-* Logged-in citizens can upload custom streetwear mockups directly into the grid.
-* Community curation engine with async JSON-based upvote endpoints.
+> **Repository status:** this repo currently holds the product specification
+> and roadmap. The Django implementation described below is the planned
+> architecture and is being built out — no application source is committed yet.
 
 ---
 
-## 🚀 Local Installation & Deployment
+## The idea
 
-Follow these strict commands to clone, configure, and boot the local engine matrix.
+Streetwear in North Africa has a strong visual language that rarely reaches
+global storefronts. MenMo5i is designed as a digital syndicate where:
 
-### 1. Synchronize the Repository & Environment
-```bash
-# Clone the repository structure
-git clone [https://github.com/yourusername/MenMo5i.git](https://github.com/yourusername/MenMo5i.git)
-cd MenMo5i
+- **Drops are events** — limited runs with a story, not an endless catalogue.
+- **Design is collaborative** — logged-in members upload mockups into the grid.
+- **Curation is community-driven** — async upvote endpoints surface the best work.
+- **The frontend is an experience** — GPU-composited parallax and scroll-scrubbed
+  product stories instead of a generic product grid.
 
-# Spin up the isolated virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
+---
 
-2. Inject System Dependencies
-Bash
+## Planned stack
 
-pip install --upgrade pip
-pip install -r requirements.txt
+| Layer | Technology |
+|---|---|
+| Backend | Django 5.x / Python 3.12 |
+| Async work | Celery + Redis (media handling, imports, scoring) |
+| Database | PostgreSQL in production, SQLite for local development |
+| Frontend | Tailwind CSS + hardware-accelerated vanilla JS (`translate3d`) |
+| Auth | Django sessions and `django.contrib.auth` |
+| Media | Local `media/` storage, later object storage |
 
-(If you don't have a requirements.txt file yet, install the essential modules via: pip install django pillow absolute-extensions)
-3. Initialize Databases & Migrate
-Bash
+## Planned features
 
-# Generate database schema hooks
-python manage.py makemigrations
-python manage.py migrate
+### Storefront experience
+- Parallax camera rig built entirely with `translate3d` to avoid layout reflow.
+- A 300vh scroll-pinned section that scrubs through item specifications.
+- A DOM-decoupled ambient cursor with eased tracking and `mix-blend-mode`.
 
-# Create the master root administrator
-python manage.py createsuperuser
+### Member portal
+- Guest → member layout mutations, registration, login and secure logout.
+- Profile area for submissions and votes.
 
-4. Boot up the Dev Grid
-Bash
+### AI design pipeline *(in progress)*
+- Mockup upload for authenticated members.
+- Async JSON upvote endpoint with per-user de-duplication.
+- Curation queue that promotes top-voted designs into the drop pipeline.
 
-python manage.py runserver
+---
 
-Navigate to http://127.0.0.1:8000/ in your browser to inspect the application.
-📂 Project Directory Breakdown
-Plaintext
+## Proposed layout
 
+```text
 MenMo5i/
-├── MenMo5i/                  # Core configuration shell
-│   ├── __init__.py
-│   ├── settings.py           # Global settings, static settings & authentication setups
-│   ├── urls.py               # Root application URL routing registry
-│   └── wsgi.py
-├── core_store/               # Core storefront application directory
+├── MenMo5i/            # settings.py, urls.py, wsgi.py, celery.py
+├── core_store/         # models, forms, views, URLconf
 │   ├── migrations/
-│   ├── templates/            # Core UI layout architecture
-│   │   └── core_store/
-│   │       ├── base.html     # Global shell (Navbar, Footer, Cursor engine, Grain filters)
-│   │       └── landing.html  # Immersive scroll-scrub storefront catalog
-│   ├── forms.py              # Secure user data ingestion controls
-│   ├── models.py             # ProductDrop and AISubmission database structures
-│   ├── urls.py               # Local app view endpoints
-│   └── views.py              # Main application controllers and JSON responses
-├── media/                    # Local dynamic file repository (User AI Uploads & Products)
+│   └── templates/core_store/
+│       ├── base.html   # shell: navbar, footer, cursor, grain filter
+│       └── landing.html# scroll-scrubbed storefront
+├── media/              # user submissions and product imagery
 ├── manage.py
-└── README.md
+└── requirements.txt
+```
 
-🌐 Environment Configurations (settings.py)
+Key settings the implementation expects:
 
-Ensure your local image rendering parameters are accurately mapped for development:
-Python
+```python
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "landing"
+LOGOUT_REDIRECT_URL = "landing"
+```
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+---
 
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'landing'
-LOGOUT_REDIRECT_URL = 'landing'
+## Roadmap
 
-📑 License
+- [x] Brand identity and product specification
+- [x] Storefront interaction design
+- [ ] Django project skeleton and `core_store` app
+- [ ] Product drop and AI submission models + migrations
+- [ ] Authentication and member portal
+- [ ] Async upvote endpoint with Celery scoring
+- [ ] Payment and order flow
+- [ ] Production deployment (PostgreSQL + Redis + object storage)
 
-© 2026 MENMO5I SYNDICATE. All aesthetic and technology structures preserved under digital lock.
+---
+
+## License
+
+[MIT](LICENSE) — © 2026 Mounib Chandoul.
